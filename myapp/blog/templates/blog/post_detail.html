@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- form error -->
+
+{% comment %} include 자주 사용 {% endcomment %}
+        <h2>제목 : {{ post_title }}</h2>
+        
+        {% comment %} {% if post_writer == request.user %} {% endcomment %}
+        {% comment %} <a href="{% url 'blog:edit' pk=post_id %}" class="btn btn-outline-success">수정</a> {% endcomment %}
+        {% comment %} <form action =" {% url 'blog:delete' pk=post_id %}" method = "post"> {% endcomment %}
+        
+            {% csrf_token %}
+            <input type ="submit" class="btn btn-outline-success" value ="삭제"></input>
+        </form>
+        {% comment %} {% endif %} {% endcomment %}
+        {% comment %} <p>내용 : {{ post_content }}</p> {% endcomment %}
+        <p>내용 : {{ post.content }}</p>
+        <p>작성자 : {{ post_writer }}</p>
+        <p>작성일 : {{ post_created_at }}</p>
+    <hr>
+    <h3>댓글</h3>
+    
+
+{% endblock %}
