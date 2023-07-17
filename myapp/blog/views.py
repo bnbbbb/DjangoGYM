@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Post
 from .forms import PostForm
 # Create your views here.
@@ -27,7 +28,7 @@ class DetailView(View):
         return render(request, 'blog/post_detail.html', context)
 
 
-class Write(View):
+class Write(LoginRequiredMixin, View):
     def get(self, request):
         form  = PostForm()
         context = {
@@ -39,8 +40,8 @@ class Write(View):
         
         if form.is_valid():
             post = form.save(commit=False)
+            post.writer = request.user
             post.name = request.user.name
-            # post.writer = request.user.name
             post.save()
             return redirect('blog:list')
         
