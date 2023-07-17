@@ -39,7 +39,8 @@ class Write(View):
         
         if form.is_valid():
             post = form.save(commit=False)
-            # post.writer = request.user
+            post.name = request.user.name
+            # post.writer = request.user.name
             post.save()
             return redirect('blog:list')
         

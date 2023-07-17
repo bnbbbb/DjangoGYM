@@ -14,7 +14,7 @@
     </head>
     <body>
         <div class="container">
-            {% comment %} {% if user.is_authenticated %}
+            {% if user.is_authenticated %}
             <!-- login이 되어 있다면  -->
             <p>Welcome, {{user.email}}</p>
             <a href ="{% url 'user:logout' %}" class="btn">Logout</a>
@@ -22,7 +22,8 @@
             <p>Please Login!</p>
             <a href="{% url 'user:login' %}" class="btn">Login</a>
             <a href="{% url 'user:register' %}" class="btn">Join</a>
-            {% endif %} {% endcomment %}
+            <a href="{% url 'user:busiregister' %}" class="btn">BusinessJoin</a>
+            {% endif %}
             <h1>Blog</h1>
             {% block content %} 
             {% endblock %}

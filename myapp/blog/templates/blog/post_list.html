@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
-{% if posts %}
     <form action="{% url 'blog:write' %}" method="get">
         <input type ="hidden" name = "{{ reditect_field_name }}" value = "{{ request.GET.next }}">
         <input type ="submit" value ="글 작성">
     </form>
+{% if posts %}
     <table class ="table table-bordered">
         <thead class="table-light">
             <tr>
@@ -17,7 +17,7 @@
             {% for post in posts %}
                 <tr>
                     <td><a href="{% url 'blog:detail' pk=post.pk %}" class= "btn">{{post.title}}</a></td>
-                    <td>{{post.writer}}</td>
+                    <td>{{post.name}}</td>
                 </tr>
             {% endfor %}
         </tbody>

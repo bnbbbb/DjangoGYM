@@ -27,7 +27,7 @@ class UserManager(BaseUserManager):
     def create_user(self, username, password, **extra_fields):
         return self._create_user(username, password, False, False, **extra_fields)
 
-    def create_user(self, username, password, **extra_fields):
+    def create_superuser(self, username, password, **extra_fields):
         return self._create_user(username, password, True, True, **extra_fields)
 
 
@@ -35,7 +35,6 @@ class User(AbstractUser):
     username = models.CharField(unique=True, max_length=20)
     email = models.EmailField()
     name = models.CharField(max_length=10)
-    business_code = models.CharField(max_length=40, blank=True, null=True)
     is_staff = models.BooleanField(default = False)
     is_superuser = models.BooleanField(default = False)
     is_active = models.BooleanField(default=True)
@@ -43,4 +42,11 @@ class User(AbstractUser):
     date_joined = models.DateTimeField(auto_now_add=True)
     
     objects = UserManager()
+
+
+class BusinessUser(User):
+    
+    business_code = models.CharField(max_length=40, unique=True)
+    
+    # USERNAME_FIELD = 'username'
     
