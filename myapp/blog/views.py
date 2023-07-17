@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from .models import Post
 from .forms import PostForm
@@ -47,3 +47,36 @@ class Write(View):
             'form':form
         }
         return render(request, 'blog/post_form.html')
+
+
+class Update(View):
+    def get(self, request, pk):
+        post = Post.objects.get(pk=pk)
+        
+        form = PostForm(initial={'title':post.title, 'content':post.content})
+        
+        context = {
+            'title':'Blog',
+            'form':form,
+            'post':post
+        }
+        return render(request, 'blog/post_edit.html', context)
+    
+    def post(self, request, pk):
+        post = Post.objects.get(pk=pk)
+        form = PostForm(request.POST)
+        if form.is_valid():
+            post.title = form.cleaned_data['title']
+            post.content = form.cleaned_data['content']
+            return redirect('blog:detail', pk=pk)
+        context = {
+            'form':form
+        }
+        return render(request, 'blog/post_detail.html', context)
+
+
+class Delete(View):
+    def post(self, request, pk):
+        post = get_object_or_404(Post, pk=pk)
+        post.delete()
+        return redirect('blog:list')

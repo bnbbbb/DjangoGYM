@@ -2,13 +2,12 @@
 
 {% block content %}
 
-<!-- form error -->
 
-{% comment %} include 자주 사용 {% endcomment %}
         <h2>제목 : {{ post_title }}</h2>
         
         {% comment %} {% if post_writer == request.user %} {% endcomment %}
-        {% comment %} <a href="{% url 'blog:edit' pk=post_id %}" class="btn btn-outline-success">수정</a> {% endcomment %}
+        <a href="{% url 'blog:edit' pk=post.pk %}" class="btn btn-outline-success">수정</a>
+        <form action =" {% url 'blog:delete' pk=post.pk %}" method = "post">
         {% comment %} <form action =" {% url 'blog:delete' pk=post_id %}" method = "post"> {% endcomment %}
         
             {% csrf_token %}
