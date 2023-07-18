@@ -16,13 +16,15 @@
         <div class="container">
             {% if user.is_authenticated %}
             <!-- login이 되어 있다면  -->
-            <p>Welcome, {{user.email}}</p>
+            <p>환영합니다, {{user.name}}님</p>
             <a href ="{% url 'user:logout' %}" class="btn">Logout</a>
+            <a href="{% url 'user:edit' %}" class="btn">Edit</a>
+            <a href="{% url 'user:profile' %}" class="btn">profile</a>
             {% else %}
             <p>Please Login!</p>
             <a href="{% url 'user:login' %}" class="btn">Login</a>
             <a href="{% url 'user:register' %}" class="btn">Join</a>
-            <a href="{% url 'user:busiregister' %}" class="btn">BusinessJoin</a>
+            {% comment %} <a href="{% url 'user:busiregister' %}" class="btn">BusinessJoin</a> {% endcomment %}
             {% endif %}
             <h1>Blog</h1>
             {% block content %} 

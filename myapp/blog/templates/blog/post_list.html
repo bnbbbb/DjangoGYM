@@ -1,28 +1,35 @@
 {% extends "base.html" %}
 {% block content %}
+{% if request.user.business %}
     <form action="{% url 'blog:write' %}" method="get">
-        <input type ="hidden" name = "{{ reditect_field_name }}" value = "{{ request.GET.next }}">
-        <input type ="submit" value ="글 작성">
+        <input type ="submit" value ="글 작성" class="btn btn-primary">
     </form>
-{% if posts %}
+{% endif %}
+{% if request.user.is_authenticated %}
+    {% if posts %}
     <table class ="table table-bordered">
         <thead class="table-light">
             <tr>
                 <td>제목</td>
                 {% comment %} <td>내용</td> {% endcomment %}
                 <td>작성자</td>
-            </tr>
-        </thead>
-        <tbody>
-            {% for post in posts %}
-                <tr>
-                    <td><a href="{% url 'blog:detail' pk=post.pk %}" class= "btn">{{post.title}}</a></td>
-                    <td>{{post.name}}</td>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <p>게시글이 없습니다.</p>
+            </thead>
+            <tbody>
+                {% for post in posts %}
+                {% if request.user.fulladdress == post.address%}
+                    <tr>
+                        <td><a href="{% url 'blog:detail' pk=post.pk %}" class= "btn">{{post.title}}</a></td>
+                        <td>{{post.name}}</td>
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <p>게시글이 없습니다.</p>
     {% endif %}
+        {% else %}
+            <p>로그인 후에 게시글을 볼 수 있습니다.</p>
+{% endif %}
 {% endblock %}

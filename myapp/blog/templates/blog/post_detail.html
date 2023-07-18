@@ -5,21 +5,47 @@
 
         <h2>제목 : {{ post_title }}</h2>
         
-        {% comment %} {% if post_writer == request.user %} {% endcomment %}
-        <a href="{% url 'blog:edit' pk=post.pk %}" class="btn btn-outline-success">수정</a>
-        <form action =" {% url 'blog:delete' pk=post.pk %}" method = "post">
-        {% comment %} <form action =" {% url 'blog:delete' pk=post_id %}" method = "post"> {% endcomment %}
+        {% if post_writer == request.user %}
+        <a href="{% url 'blog:edit' pk=post_id %}" class="btn btn-outline-success">수정</a>
+        <form action =" {% url 'blog:delete' pk=post_id %}" method = "post">
         
             {% csrf_token %}
             <input type ="submit" class="btn btn-outline-success" value ="삭제"></input>
         </form>
-        {% comment %} {% endif %} {% endcomment %}
-        {% comment %} <p>내용 : {{ post_content }}</p> {% endcomment %}
-        <p>내용 : {{ post.content }}</p>
-        <p>작성자 : {{ post_writer }}</p>
+        {% endif %}
+        <p>내용 : {{ post_content }}</p>
+        <p>작성자 : {{ post_name }}</p>
         <p>작성일 : {{ post_created_at }}</p>
     <hr>
-    <h3>댓글</h3>
-    
+    <h3>리뷰</h3>
+    <form action = "{% url 'blog:rv-write' pk=post_id %}" method = "post">
+            {% csrf_token %}
+            {# 에러처리 #}
+            {% if review_form.content.errors %}
+                {% with form=review_form%}
+                    {% include 'blog/form_error.html' %}
+                {% endwith %}
+            {% else %}
+                {{ review_form.content }}
+            {% endif %}
+            <input type = "submit" value = "댓글 작성" class="btn btn-primary">
+    </form>
+        {% if reviews %}
+        <ul>
+            {% for review in reviews %}
+                <li> {{review.content}} / {{review.created_at}}
+                    {% if review.writer == request.user %}
+                        <form action ="{% url 'blog:rv-delete' pk=review.pk %}" method = "post">
+                    {% csrf_token %}
+                        <input type = "submit" value ="X" class ="btn"> </input>
+                    </form>
+                    {% endif %}
+                </li>
+                
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>댓글이 없습니다.</p>
+    {% endif %}
 
 {% endblock %}

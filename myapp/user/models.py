@@ -6,13 +6,14 @@ from django.utils import timezone
 
 class UserManager(BaseUserManager):
     
-    def _create_user(self, username, email, password, address, is_staff, is_superuser, **extra_fields):
+    def _create_user(self, username, password, address, is_staff, is_superuser, **extra_fields):
         if not username:
             raise ValueError('Must have an usernae')
         now = timezone.localtime()
         user = self.model(
             username = username,
-            email = email,
+            # email = email,
+            is_active = True,
             is_staff = is_staff,
             is_superuser = is_superuser,
             last_login = now,
@@ -25,28 +26,41 @@ class UserManager(BaseUserManager):
         return user
 
     def create_user(self, username, password, **extra_fields):
-        return self._create_user(username, password, False, False, **extra_fields)
+        return self._create_user(username, password, False,False, False, **extra_fields)
 
     def create_superuser(self, username, password, **extra_fields):
-        return self._create_user(username, password, True, True, **extra_fields)
+        return self._create_user(username, password, True,True, True, **extra_fields)
 
 
 class User(AbstractUser):
     username = models.CharField(unique=True, max_length=20)
-    email = models.EmailField()
+    # email = None
     name = models.CharField(max_length=10)
+    address_choices = (('서울특별시', '서울특별시'), ('경기도', '경기도'), ('부산광역시', '부산광역시'), )
+    city = models.CharField(max_length=100)
+    town = models.CharField(max_length=100)
+    address = models.CharField(max_length=10, choices=address_choices)
+    # address = models.CharField(max_length=30)
+    # city = models.CharField(max_length=30)
+    # town = models.CharField(max_length=30)
+    fulladdress = models.CharField(max_length=100)
+    
     is_staff = models.BooleanField(default = False)
     is_superuser = models.BooleanField(default = False)
     is_active = models.BooleanField(default=True)
     last_login = models.DateTimeField(null=True, blank=True)
     date_joined = models.DateTimeField(auto_now_add=True)
-    
+    business = models.BooleanField(default=False)
     objects = UserManager()
+    
+    def save(self, *args, **kwargs):
+        self.fulladdress = f'{self.address} {self.city} {self.town}'
+        super().save(*args, **kwargs)
 
 
-class BusinessUser(User):
-    
-    business_code = models.CharField(max_length=40, unique=True)
-    
-    # USERNAME_FIELD = 'username'
-    
+class Profile(models.Model):
+    user = models.OneToOneField('User', on_delete = models.CASCADE)
+    # image = models.ImageField(upload_to = 'user/media')
+    # imagefield 사용하려면 필로우를 설치해줘야합니다. Pillow
+    # age = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
