@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth import authenticate, login, logout
 from .models import Profile
-from .forms import RegisterForm, LoginForm, ProfileForm
+from .forms import RegisterForm, LoginForm, ProfileForm, PasswordForm
 # Create your views here.
 
 ### Register
@@ -100,3 +100,18 @@ class Update(View):
             form.save()
             
             return redirect('user:profile')
+
+
+class Password(View):
+    def get(self, request):
+        form = PasswordForm(request.user)
+        context = {
+            'form':form
+        }
+        return render(request, 'user/user_password.html', context)
+    def post(self, request):
+        form = PasswordForm(request.user, request.POST)
+        
+        if form.is_valid():
+            form.save()
+            return redirect('blog:list')

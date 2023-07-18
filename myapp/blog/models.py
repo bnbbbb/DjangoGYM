@@ -10,6 +10,7 @@ class Post(models.Model):
     writer = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=20)
     address = models.CharField(max_length=40)
+    count = models.IntegerField(default = 0)
     # image = models.ImageField(upload_to = 'blog/media/')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

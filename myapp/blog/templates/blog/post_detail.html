@@ -16,20 +16,23 @@
         <p>내용 : {{ post_content }}</p>
         <p>작성자 : {{ post_name }}</p>
         <p>작성일 : {{ post_created_at }}</p>
+        <p>조회수 : {{ post_count }}</p>
     <hr>
     <h3>리뷰</h3>
-    <form action = "{% url 'blog:rv-write' pk=post_id %}" method = "post">
-            {% csrf_token %}
-            {# 에러처리 #}
-            {% if review_form.content.errors %}
-                {% with form=review_form%}
-                    {% include 'blog/form_error.html' %}
-                {% endwith %}
-            {% else %}
-                {{ review_form.content }}
-            {% endif %}
-            <input type = "submit" value = "댓글 작성" class="btn btn-primary">
-    </form>
+    {% if request.user.is_authenticated %}
+        <form action = "{% url 'blog:rv-write' pk=post_id %}" method = "post">
+                {% csrf_token %}
+                {# 에러처리 #}
+                {% if review_form.content.errors %}
+                    {% with form=review_form%}
+                        {% include 'blog/form_error.html' %}
+                    {% endwith %}
+                {% else %}
+                    {{ review_form.content }}
+                {% endif %}
+                <input type = "submit" value = "댓글 작성" class="btn btn-primary">
+        </form>
+    {%endif%}
         {% if reviews %}
         <ul>
             {% for review in reviews %}

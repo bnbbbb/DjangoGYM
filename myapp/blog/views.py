@@ -26,6 +26,10 @@ class DetailView(View):
         post = Post.objects.prefetch_related('review_set').get(pk=pk)
         reviews = post.review_set.all()
         review_form = ReviewForm()
+        
+        post.count += 1
+        post.save()
+        
         context = {
             'title' : 'Blog',
             'post_id' : pk,
@@ -33,7 +37,8 @@ class DetailView(View):
             'post_content' : post.content,
             'post_writer' : post.writer,
             'post_created_at' : post.created_at,
-            'post_name':post.name,
+            'post_name': post.name,
+            'post_count':post.count,
             'reviews' : reviews,
             'review_form' : review_form
         }
@@ -125,11 +130,11 @@ class ReviewWrite(View):
         context = {
             'title': 'Blog',
             'post_id': pk,
-            'post_title': reviews[0].post.title,
-            'post_content' : reviews[0].post.content,
-            'post_writer' : reviews[0].post.writer,
-            'post_created_at' : reviews[0].post.created_at,
-            'reviews' : post.comment_set.all(),
+            'post_title': post.title,
+            'post_content' : post.content,
+            'post_name' : post.name,
+            'post_created_at' : post.created_at,
+            'reviews' : post.review_set.all(),
             'review_form' : form,
         }
         return render(request, 'blog/post_detail.html', context)
