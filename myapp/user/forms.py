@@ -1,7 +1,8 @@
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UserChangeForm, PasswordChangeForm
 from django import forms
-from .models import Profile
 from django.contrib.auth import get_user_model
+from django.core.files.base import ContentFile
+from .models import Profile
 
 User = get_user_model()
 
@@ -23,8 +24,13 @@ class ProfileForm(UserChangeForm):
         self.fields['business'].disabled = True
     class Meta:
         model = User
-        fields = ['username','name', 'business','address','city','town']
+        fields = ['username','name','business','address','city','town']
 
+
+class ProfileImageForm(forms.ModelForm):
+    class Meta:
+        model=Profile
+        fields =['image']
 
 class LoginForm(AuthenticationForm):
     class Meta:

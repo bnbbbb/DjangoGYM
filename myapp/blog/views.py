@@ -3,6 +3,7 @@ from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Q
+from django.core.files.storage import default_storage
 from .models import Post, Review, Tag
 # from user.models import BusinessUser
 from .forms import PostForm, ReviewForm, TagForm, SearchForm
@@ -41,19 +42,20 @@ class DetailView(View):
             'post_created_at' : post.created_at,
             'post_name': post.name,
             'post_count':post.count,
-            'post_img':post.image.url,
+            # 'post_img':post.image.url,
             'reviews' : reviews,
             'review_form' : review_form,
             'tags' : tags,
             'tag_form':tag_form,
         }
+        if post.image:  # 이미지가 있는 경우에만 context에 추가합니다.
+            context['post_img'] = post.image.url
         print(context)
         return render(request, 'blog/post_detail.html', context)
 
 
 class Write(LoginRequiredMixin, View):
     def get(self, request):
-        # print(business_id)
         form = PostForm()
         context = {
             'form': form,
@@ -70,8 +72,9 @@ class Write(LoginRequiredMixin, View):
             post.writer = request.user
             post.name = request.user.name
             post.address = request.user.fulladdress
-            # post.image = request.user.image
-            print(post.image)
+            if 'image' in request.FILES:
+                if post.image:
+                    default_storage.delete(post.image.path)
             post.save()
             return redirect('blog:list')
         
@@ -85,8 +88,8 @@ class Update(View):
     def get(self, request, pk):
         post = Post.objects.get(pk=pk)
         
-        form = PostForm(initial={'title':post.title, 'content':post.content})
-        
+        form = PostForm(initial={'title':post.title, 'content':post.content, 'image':post.image})
+        print(form)
         context = {
             'title':'Blog',
             'form':form,
@@ -96,12 +99,18 @@ class Update(View):
     
     def post(self, request, pk):
         post = Post.objects.get(pk=pk)
-        form = PostForm(request.POST)
+        form = PostForm(request.POST, request.FILES)
         if form.is_valid():
             post.title = form.cleaned_data['title']
             post.content = form.cleaned_data['content']
+            image_file = request.FILES.get('image')
+            if 'image' in request.FILES:
+                if post.image:
+                    default_storage.delete(post.image.path)
+                post.image = image_file
             post.save()
             return redirect('blog:detail', pk=pk)
+        print('qwoueihaskjhfdgas',form.errors)
         context = {
             'form':form
         }

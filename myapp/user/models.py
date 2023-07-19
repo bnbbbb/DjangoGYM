@@ -40,9 +40,6 @@ class User(AbstractUser):
     city = models.CharField(max_length=100)
     town = models.CharField(max_length=100)
     address = models.CharField(max_length=10, choices=address_choices)
-    # address = models.CharField(max_length=30)
-    # city = models.CharField(max_length=30)
-    # town = models.CharField(max_length=30)
     fulladdress = models.CharField(max_length=100)
     
     is_staff = models.BooleanField(default = False)
@@ -60,7 +57,5 @@ class User(AbstractUser):
 
 class Profile(models.Model):
     user = models.OneToOneField('User', on_delete = models.CASCADE)
-    # image = models.ImageField(upload_to = 'user/media')
-    # imagefield 사용하려면 필로우를 설치해줘야합니다. Pillow
-    # age = models.IntegerField()
+    image = models.ImageField(upload_to = 'user/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)

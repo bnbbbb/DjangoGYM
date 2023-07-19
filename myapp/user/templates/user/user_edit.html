@@ -2,10 +2,11 @@
 
 {% block content %}
     <h2>회원수정 페이지</h2>
-    <form action="{% url 'user:edit' %}" method ="post">
+    <form action="{% url 'user:edit' %}" method ="post" enctype="multipart/form-data">
     {% csrf_token %}
 
     {{ form.as_p }}
+    {{imgform.as_p}}
     <input type="submit" value = "프로필 수정">
     </form>
 {% endblock  %}
