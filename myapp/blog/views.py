@@ -31,7 +31,7 @@ class DetailView(View):
         tag_form = TagForm()
         post.count += 1
         post.save()
-        
+        # print(post.image)
         context = {
             'title' : 'Blog',
             'post_id' : pk,
@@ -41,12 +41,13 @@ class DetailView(View):
             'post_created_at' : post.created_at,
             'post_name': post.name,
             'post_count':post.count,
-            'post_img':post.image,
+            'post_img':post.image.url,
             'reviews' : reviews,
             'review_form' : review_form,
             'tags' : tags,
             'tag_form':tag_form,
         }
+        print(context)
         return render(request, 'blog/post_detail.html', context)
 
 
@@ -63,20 +64,21 @@ class Write(LoginRequiredMixin, View):
             
     def post(self, request):
         form = PostForm(request.POST, request.FILES)
-        
+        # print(form)
         if form.is_valid():
             post = form.save(commit=False)
             post.writer = request.user
             post.name = request.user.name
             post.address = request.user.fulladdress
-            # post.image = request.user.image 
+            # post.image = request.user.image
+            print(post.image)
             post.save()
             return redirect('blog:list')
         
         context = {
             'form':form
         }
-        return render(request, 'blog/post_form.html')
+        return render(request, 'blog/post_form.html', context)
 
 
 class Update(View):

@@ -14,7 +14,10 @@
         </form>
         {% endif %}
         <p>내용 : {{ post_content }}</p>
-        <img src="{{post.image.url}}">
+        <img src="{{ post_img }}">
+        {% comment %} <script>
+            alert(".{{post_img}}")
+        </script> {% endcomment %}
         <p>작성자 : {{ post_name }}</p>
         <p>작성일 : {{ post_created_at }}</p>
         <p>조회수 : {{ post_count }}</p>
