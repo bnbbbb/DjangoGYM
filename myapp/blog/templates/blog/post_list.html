@@ -6,7 +6,15 @@
     </form>
 {% endif %}
 {% comment %} {% if request.user.is_authenticated %} {% endcomment %}
-    {% if posts %}
+<form action="{% url 'blog:search'  tag='{{q}}'%}" method="get" class="mt-4">
+    <div class="form-group">
+        <label for="tagInput">태그 검색:</label>
+        <input type="text" name="q" id="tagInput" class="form-control" placeholder="태그를 입력하세요">
+    </div>
+    <button type="submit" class="btn btn-primary">검색</button>
+</form> 
+
+{% if posts %}
     <table class ="table table-bordered">
         <thead class="table-light">
             <tr>
@@ -20,7 +28,7 @@
                 {% comment %} {% if request.user.fulladdress == post.address%} {% endcomment %}
                     <tr>
                         <td><a href="{% url 'blog:detail' pk=post.pk %}" class= "btn">{{post.title}}</a></td>
-                        <td>{{post.name}}</td>
+                        <td>{{ post.name }}</td>
                     </tr>
                     {% comment %} {% endif %} {% endcomment %}
                 {% endfor %}

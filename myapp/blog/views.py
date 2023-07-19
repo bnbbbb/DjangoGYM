@@ -2,9 +2,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
-from .models import Post, Review
+from django.db.models import Q
+from .models import Post, Review, Tag
 # from user.models import BusinessUser
-from .forms import PostForm, ReviewForm
+from .forms import PostForm, ReviewForm, TagForm, SearchForm
 # Create your views here.
 
 
@@ -26,7 +27,8 @@ class DetailView(View):
         post = Post.objects.prefetch_related('review_set').get(pk=pk)
         reviews = post.review_set.all()
         review_form = ReviewForm()
-        
+        tags = post.tags.all()
+        tag_form = TagForm()
         post.count += 1
         post.save()
         
@@ -39,8 +41,11 @@ class DetailView(View):
             'post_created_at' : post.created_at,
             'post_name': post.name,
             'post_count':post.count,
+            'post_img':post.image,
             'reviews' : reviews,
-            'review_form' : review_form
+            'review_form' : review_form,
+            'tags' : tags,
+            'tag_form':tag_form,
         }
         return render(request, 'blog/post_detail.html', context)
 
@@ -57,13 +62,14 @@ class Write(LoginRequiredMixin, View):
         #     return redirect('blog:list')
             
     def post(self, request):
-        form = PostForm(request.POST)
+        form = PostForm(request.POST, request.FILES)
         
         if form.is_valid():
             post = form.save(commit=False)
             post.writer = request.user
             post.name = request.user.name
             post.address = request.user.fulladdress
+            # post.image = request.user.image 
             post.save()
             return redirect('blog:list')
         
@@ -127,6 +133,7 @@ class ReviewWrite(View):
             except ValidationError as e:
                 print('Validation error occurred', str(e))                
             return redirect('blog:detail', pk=pk)
+        tag_form = TagForm()
         context = {
             'title': 'Blog',
             'post_id': pk,
@@ -136,6 +143,8 @@ class ReviewWrite(View):
             'post_created_at' : post.created_at,
             'reviews' : post.review_set.all(),
             'review_form' : form,
+            'tags': post.tag_set.all(),
+            'tag_form': tag_form
         }
         return render(request, 'blog/post_detail.html', context)
 
@@ -150,3 +159,73 @@ class ReviewDelete(View):
         review.delete()
         
         return redirect('blog:detail', pk = post_id)
+
+
+class TagWrite(View):
+    def post(self, request, pk):
+        form = TagForm(request.POST)
+        try:
+            post = Post.objects.get(pk=pk)
+        except ObjectDoesNotExist as e:
+            print('Tag Does not exist', str(e))
+        reviews = Review.objects.select_related('post')
+        tags = Tag.objects.select_related('post')
+        
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            writer = request.user
+            try:
+                tag = Tag.objects.create(post = post, name=name, writer = writer)
+            except ObjectDoesNotExist as e:
+                print('Post does not exist.', str(e))
+            
+            except ValidationError as e:
+                print('Valdation error occurred', str(e))
+            # FK로 연결된 애들은 객체상태로 넘겨줘야 됩니다. 
+            # comment = Comment(post = post) => comment.save()
+            return redirect('blog:detail', pk=pk)
+        # form.add_error(None, '폼이 유효하지 않습니다.')
+        review_form = ReviewForm()
+        context = {
+            'title': 'Blog',
+            'post_id': pk,
+            'post_title': post.title,
+            'post_content' : post.content,
+            'post_name' : post.name,
+            'post_created_at' : post.created_at,
+            'reviews' : post.review_set.all(),
+            'hashtags' : post.tag_set.all(),
+            'review_form' : review_form,
+            'tag_form' : form
+            
+        }
+        return render(request, 'blog/post_detail.html', context)
+
+
+class TagDelete(View):
+    def post(self, request, pk):
+        # pk는 hashtag의 pk (hashtag_id)
+        # 해시태그 불러오기
+        try:
+            tag = Tag.objects.get(pk = pk)
+            
+        except ObjectDoesNotExist as e:
+            print('HashTag does not exist.', str(e))
+        # 해쉬태그에 담겨 있는 FK의 포스트 pk 값 가져오기
+        post_id = tag.post.id
+        
+        # 해시태그 삭제 하기전에 값을 가져와야됩니다.
+        tag.delete()
+        
+        return redirect('blog:detail', pk = post_id)
+
+class SearchTag(View):
+    def get(self, request, tag):
+        q = request.GET.get('q')
+        queryset = Post.objects.filter(Q(tags__name__icontains=q)|Q(title__icontains=q)|Q(address__icontains=q))
+        context = {
+            'posts': queryset,
+            'q': tag,
+            'title': 'Blog',
+        }
+        return render(request, 'blog/post_list.html', context)

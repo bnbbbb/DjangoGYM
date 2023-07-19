@@ -14,6 +14,7 @@
         </form>
         {% endif %}
         <p>내용 : {{ post_content }}</p>
+        <img src="{{post.image.url}}">
         <p>작성자 : {{ post_name }}</p>
         <p>작성일 : {{ post_created_at }}</p>
         <p>조회수 : {{ post_count }}</p>
@@ -50,5 +51,33 @@
     {% else %}
         <p>댓글이 없습니다.</p>
     {% endif %}
-
+    <h3>Tag</h3>
+    <form action="{% url 'blog:tag-write' pk=post_id %}" method = "post">
+        {% csrf_token %}
+        {% if tag_form.name.errors %}
+            {% with form=tag_form%}
+                {% include 'blog/form_error.html' %}
+            {% endwith %}
+        {% else %}
+            {{ tag_form.name }}
+        {% endif %}
+        <input type="submit" value="태그 작성" class="btn btn-success">
+    </form>
+    <br>
+    {% if tags %}
+        <ul>
+            {% for tag in tags %}
+                <li>{{tag.name}}
+                    {% if tag.writer == request.user %}
+                        <form action ="{% url 'blog:tag-delete' pk=tag.pk %}" method = "post">
+                            {% csrf_token %}
+                            <input type = "submit" value ="X" class ="btn btn-success"> </input>
+                        </form>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+    <p>X</p>
+    {% endif%}
 {% endblock %}

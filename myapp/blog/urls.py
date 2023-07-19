@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import path
 from . import views
 
@@ -13,5 +15,10 @@ urlpatterns =[
     # detail/<int:pk> 글에 대한 id값
     # 코멘트 삭제
     path("detail/comment/<int:pk>/delete/", views.ReviewDelete.as_view(), name='rv-delete'),
-    
+    path("detal/<int:pk>/hashtag/write", views.TagWrite.as_view(), name = "tag-write"),
+    # 태그 삭제
+    path("detal/hashtag/<int:pk>/delete", views.TagDelete.as_view(), name = "tag-delete"),
+    path('search/<str:tag>', views.SearchTag.as_view(), name='search'),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
