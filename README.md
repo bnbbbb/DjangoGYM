@@ -98,38 +98,38 @@
 ```
 ---
 ## 5. Model
-<img src="../readme/model.png" >
+<img src="./readme/model.png" >
 
 ## 6. 페이지 UI
 - user-profile
 
-<img src="../readme/user_register.png" style="width:300px; height:400px;">
-<img src="../readme/user_login.png" style="width:300px; height:400px;">
-<img src="../readme/user_password.png" style="width:300px; height:400px;">
-<img src="../readme/useredit.png" style="width:300px; height:400px;">
-<img src="../readme/userprofile.png" style="width:300px; height:400px;">
+<img src="./readme/user_register.png" style="width:300px; height:400px;">
+<img src="./readme/user_login.png" style="width:300px; height:400px;">
+<img src="./readme/user_password.png" style="width:300px; height:400px;">
+<img src="./readme/useredit.png" style="width:300px; height:400px;">
+<img src="./readme/userprofile.png" style="width:300px; height:400px;">
 
 - blog-post
 
-<img src="../readme/blog.png" style="width:300px; height:400px;">
-<img src="../readme/bloglist.png" style="width:300px; height:400px;">
-<img src="../readme/post.png" style="width:300px; height:400px;">
+<img src="./readme/blog.png" style="width:300px; height:400px;">
+<img src="./readme/bloglist.png" style="width:300px; height:400px;">
+<img src="./readme/post.png" style="width:300px; height:400px;">
 
 - Markdown으로 변경할 예정입니다.
 
 ## 7. 실행화면 
 - user-profile
 
-<img src="../readme/join.gif">
-<img src="../readme/login.gif">
-<img src="../readme/profile.gif">
-<img src="../readme/editprofile.gif">
+<img src="./readme/join.gif">
+<img src="./readme/login.gif">
+<img src="./readme/profile.gif">
+<img src="./readme/editprofile.gif">
 
 - blog-post
 
-<img src="../readme/post.gif">
-<img src="../readme/postdetail.gif.gif">
-<img src="../readme/reviewtag.gif">
+<img src="./readme/post.gif">
+<img src="./readme/postdetail.gif.gif">
+<img src="./readme/reviewtag.gif">
 
 ## 8. 느낀점
 
