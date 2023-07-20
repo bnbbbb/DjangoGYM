@@ -1,43 +1,81 @@
 {% extends "base.html" %}
-{% block content %}
-{% if request.user.business %}
-    <form action="{% url 'blog:write' %}" method="get">
-        <input type ="submit" value ="글 작성" class="btn btn-primary">
-    </form>
-{% endif %}
+{% load static %}
 {% comment %} {% if request.user.is_authenticated %} {% endcomment %}
-<form action="{% url 'blog:search'  tag='{{q}}'%}" method="get" class="mt-4">
-    <div class="form-group">
-        <label for="tagInput">태그 검색:</label>
-        <input type="text" name="q" id="tagInput" class="form-control" placeholder="태그를 입력하세요">
+{% block content %}
+<div class="banner">
+    <div class="max-width">
+        <div class="banner-contents">
+            <p class="sub-text">Health</p>
+            <p class="main-text">My BLOG</p>
+            <p class="description">
+                If you want to get healthier, explore numerous gyms here!
+            </p>
+        </div>
     </div>
-    <button type="submit" class="btn btn-primary">검색</button>
+</div>
+<div class="max-width">
+{% if request.user.business %}
+<form action="{% url 'blog:write' %}" method="get" class="mt-5">
+    <img src="{% static 'assets/icon-modify-white.svg' %}" alt="" />
+    <input type ="submit" value ="WRITE" class="button">
+</form>
+{% endif %}
+<main>
+<form action="{% url 'blog:search'  tag='{{q}}'%}" method="get" class="mt-5">
+    <div class="form-group">
+        <label for="tagInput">검색:</label>
+        <input type="text" name="q" id="tagInput" class="form-control" placeholder="검색어를 입력하세요">
+    </div>
+    <img src="{% static 'assets/icon-modify-white.svg' %}" alt="" />
+    <button type="submit" class="button" style="margin:10px 0 30px 0">검색</button>
 </form> 
-
-{% if posts %}
-    <table class ="table table-bordered">
-        <thead class="table-light">
-            <tr>
-                <td>제목</td>
-                {% comment %} <td>내용</td> {% endcomment %}
-                <td>작성자</td>
-                </tr>
-            </thead>
-            <tbody>
-                {% for post in posts %}
+</div>
+<div class="max-width">
+    <h2 class="a11y-hidden">Post</h2>
+    <ul class="posts">
+        {% if posts %}
+            {% for post in posts %}
+            {% with profile=post.writer.profile %}
+                <li>
                 {% comment %} {% if request.user.fulladdress == post.address%} {% endcomment %}
-                    <tr>
-                        <td><a href="{% url 'blog:detail' pk=post.pk %}" class= "btn">{{post.title}}</a></td>
-                        <td>{{ post.name }}</td>
-                    </tr>
+                    <a href="{% url 'blog:detail' pk=post.pk %}" class= "
+                    post">
+                        <article>
+                    <img src="{{post.image.url}}" alt="">
+                    <div class="contents-wrap">
+                        <dl class="category">
+                            <dt class="a11y-hidden">Category</dt>
+                            <dd>Life</dd>
+                            <dd>Style</dd>
+                        </dl>
+                        <h3>{{post.title}}</h3>
+                        <dl class="author-wrap">
+                            <dt class="a11y-hidden">Author</dt>
+                            {% if profile.image %}
+                            <dd class="author"><img src="{{profile.image.url}}" alt="" /> {{post.name}}</dd>
+                            {% else %}
+                            <dd class="author"><img src="{% static 'assets/profile.jpg' %}" alt="" /> Chilli</dd>
+                            {% endif %}
+                            <dt class="a11y-hidden">Created</dt>
+                            <dd class="created">{{post.created_at}}</dd>
+                        </dl>
+                        <p class="post-description">
+                            {{post.content}}
+                        </p>
+                    </div>
                     {% comment %} {% endif %} {% endcomment %}
-                {% endfor %}
-            </tbody>
-        </table>
+                </article>
+                </a>
+                </li>
+                {% endwith %}
+            {% endfor %}
         {% else %}
             <p>게시글이 없습니다.</p>
     {% endif %}
         {% comment %} {% else %}
             <p>로그인 후에 게시글을 볼 수 있습니다.</p>
 {% endif %} {% endcomment %}
+    </ul>
+</div>
+</main>
 {% endblock %}

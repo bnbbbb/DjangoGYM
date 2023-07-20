@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Q
 from django.core.files.storage import default_storage
 from .models import Post, Review, Tag
+from user.models import Profile
 # from user.models import BusinessUser
 from .forms import PostForm, ReviewForm, TagForm, SearchForm
 # Create your views here.
@@ -15,8 +16,11 @@ class Index(View):
     def get(self, request):
         # print(request.user.username)
         post_objs = Post.objects.all()
+        profile = Profile.objects.filter(user__in=[post.writer for post in post_objs])
+        # print(profile[0].image.url)
         context = {
             'posts':post_objs,
+            'profile': profile,
             'title':'Blog'
         }
         
@@ -26,6 +30,7 @@ class Index(View):
 class DetailView(View):
     def get(self, request, pk):
         post = Post.objects.prefetch_related('review_set').get(pk=pk)
+        profile = Profile.objects.get(user=post.writer)
         reviews = post.review_set.all()
         review_form = ReviewForm()
         tags = post.tags.all()
@@ -47,10 +52,10 @@ class DetailView(View):
             'review_form' : review_form,
             'tags' : tags,
             'tag_form':tag_form,
+            'profile':profile
         }
         if post.image:  # 이미지가 있는 경우에만 context에 추가합니다.
             context['post_img'] = post.image.url
-        print(context)
         return render(request, 'blog/post_detail.html', context)
 
 

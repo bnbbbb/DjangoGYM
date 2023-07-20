@@ -1,41 +1,90 @@
-{% extends 'base.html' %}
+{% extends 'detailbase.html' %}
+{% load static %}
 
 {% block content %}
+<div class="banner" style="background-image: url({{ post_img }})">
+    <div class="max-width">
+        <div class="banner-contents">
+            <p class="today">{{post_name}}</p>
+        </div>
+    </div>
+</div>
+<div class="view">
+    <div class="max-width">
+        <section class="wrap-box">
+            <div class="inner">
+                <!-- author -->
+                    <dl class="author-wrap">
+                        <dt class="a11y-hidden">Author</dt>
+                        <dd class="author"><img src="{{profile.image.url}}" alt="" /> Chilli</dd>
+                        <dt class="a11y-hidden">Created</dt>
+                        <dd class="created">{{post_created_at}}</dd>
+                        <dd class="author">조회수 {{post_count}}</dd>
+                    </dl>
+                    <!-- //author -->
+                    <dl class="category">
+                        <dt class="a11y-hidden">Category</dt>
+                    {% if tags %}
+                        <ul>
+                            {% for tag in tags %}
+                                <dd>{{tag.name}}
+                                    {% if tag.writer == request.user %}
+                                        <form action ="{% url 'blog:tag-delete' pk=tag.pk %}" method = "post">
+                                            {% csrf_token %}
+                                            <input type = "submit" value ="X" class ="btn btn-success"> </input>
+                                        </form>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                    {% endif%}
 
-
-        <h2>제목 : {{ post_title }}</h2>
-        
-        {% if post_writer == request.user %}
-        <a href="{% url 'blog:edit' pk=post_id %}" class="btn btn-outline-success">수정</a>
-        <form action =" {% url 'blog:delete' pk=post_id %}" method = "post">
-        
-            {% csrf_token %}
-            <input type ="submit" class="btn btn-outline-success" value ="삭제"></input>
-        </form>
-        {% endif %}
-        <p>내용 : {{ post_content }}</p>
-        <img src="{{ post_img }}">
+                    {% comment %} <dd>Life</dd>
+                    <dd>Style</dd> {% endcomment %}
+                </dl>
+                    <div class="title-wrap">
+                        <h2>{{ post_title }}</h2>
+                        <button class="btn-like">Like</button>
+                    </div>
+                    <hr />
+                    <div class="view-contents">
+                        <p>{{ post_content }}</p>
+                        <img src="{{ post_img }}">
+                    </div>
+                    {% if post_writer == request.user %}
+                    <div class="btn-group">
+                    <a href="{% url 'blog:edit' pk=post_id %}" class="btn-modify">
+                        <span class="a11y-hidden">modify</span>
+                    </a>
+                    <form action =" {% url 'blog:delete' pk=post_id %}" method = "post">
+                    
+                        {% csrf_token %}
+                        <button type ="submit" class="btn-delete">
+								<span class="a11y-hidden">delete</span>
+                    </button>
+                    </form>
+                </div>
+                    {% endif %}
         {% comment %} <script>
             alert(".{{post_img}}")
         </script> {% endcomment %}
-        <p>작성자 : {{ post_name }}</p>
-        <p>작성일 : {{ post_created_at }}</p>
-        <p>조회수 : {{ post_count }}</p>
-    <hr>
-    <h3>리뷰</h3>
-    {% if request.user.is_authenticated %}
+
+        <h3>리뷰</h3>
+        {% if request.user.is_authenticated %}
         <form action = "{% url 'blog:rv-write' pk=post_id %}" method = "post">
-                {% csrf_token %}
+            {% csrf_token %}
                 {# 에러처리 #}
                 {% if review_form.content.errors %}
                     {% with form=review_form%}
                         {% include 'blog/form_error.html' %}
                     {% endwith %}
                 {% else %}
-                    {{ review_form.content }}
+                {{ review_form.content }}
                 {% endif %}
-                <input type = "submit" value = "댓글 작성" class="btn btn-primary">
-        </form>
+                <img src="{% static 'assets/icon-modify-white.svg' %}" alt="" />
+                <input type ="submit" value ="WRITE" class="button"> 
+            </form>
     {%endif%}
         {% if reviews %}
         <ul>
@@ -64,7 +113,7 @@
         {% else %}
             {{ tag_form.name }}
         {% endif %}
-        <input type="submit" value="태그 작성" class="btn btn-success">
+        <input type ="submit" value ="WRITE" class="button"> 
     </form>
     <br>
     {% if tags %}
@@ -83,4 +132,8 @@
     {% else %}
     <p>X</p>
     {% endif%}
-{% endblock %}
+    {% endblock %}
+</div>
+</section>
+</div>
+</div>

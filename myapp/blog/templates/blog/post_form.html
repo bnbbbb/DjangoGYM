@@ -1,8 +1,31 @@
 {% extends "base.html" %}
+{% load static %}
+
 {% block content %}
+<div class="banner">
+    <div class="max-width">
+        <div class="banner-contents">
+            <p class="sub-text">Health</p>
+            <p class="main-text">My BLOG</p>
+            <p class="description">
+                게시판에 글 작성해주세요!
+            </p>
+        </div>
+    </div>
+</div>
+<div class="view">
+    <div class="max-width">
+        <section class="wrap-box">
+            <div class="inner">
     <form action="{% url 'blog:write' %}" method="post"  enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
         {{ imgform.as_p}}
-        <input type="submit" class="btn btn-outline-success"> 
+        <img src="{% static 'assets/icon-modify-white.svg' %}" alt="" />
+        <input type ="submit" value ="WRITE" class="button"> 
+            </form>
+            </div>
+            </section>
+            </div>
+            </div>
 {% endblock %}

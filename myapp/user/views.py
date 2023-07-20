@@ -95,6 +95,9 @@ class Update(View):
             'imgform':imgform,
             # 'user':user_profile
         }
+        user_profile = Profile.objects.get(user=request.user)
+        if user_profile.image:  # 이미지가 있는 경우에만 context에 추가합니다.
+            context['profile_img'] = user_profile.image.url
         return render(request, 'user/user_edit.html', context)
     def post(self, request):
         form = ProfileForm(request.POST, instance=request.user)
