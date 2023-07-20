@@ -1,12 +1,55 @@
-{% extends "base.html" %}
+{% extends "detailbase.html" %}
+{% load static %}
 
 {% block content %}
-    <h2>회원수정 페이지</h2>
-    <form action="{% url 'user:edit' %}" method ="post" enctype="multipart/form-data">
-    {% csrf_token %}
+        <div class="login-box">
+            <form action="{% url 'user:edit' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <h2>Profile Modify</h2>
+            {{ imgform.image }}
+            <div class="user-box profile-image-box">
+                <div class="preview-image-container">
+                    {% if request.user.profile.image %}
+                    <img class="preview-image" src="{{ profile_img }}" alt="프로필 이미지" style ="width: 100px; height: 100px; border-radius: 50%;">
+                    {% else %}
+                    <img class="default-image" src="{% static 'assets/default.png' %}" alt="기본 이미지">
+                    {% endif %}
+                </div>
+            </div>
+            <hr>
+                <div class="user-box"> userid
+                    {{ form.username }}
+                </div>
+                <div class="user-box">
+                    {{ form.name }}
+                    <label for="{{ form.name.id_for_label }}">nickname</label>
+                </div>
+                
+                <div class="user-box">사업자
+                    <!-- <label for="{{ form.business.id_for_label }}">사업자</label> -->
+                    {{ form.business }}
+                </div>
+                <div class="user-box" style="margin-bottom: 10px">
+                    {{ form.address }}
+                    <label for="{{ form.address.id_for_label }}">주소</label>
+                </div>
+                <div class="user-box">
+                    {{ form.city }}
+                    <label for="{{ form.city.id_for_label }}">시/군/구</label>
+                </div>
+                <div class="user-box">
+                    {{ form.town }}
+                    <label for="{{ form.town.id_for_label }}">면/읍/동</label>
+                </div>
+                <button type="submit" value="수정">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    Submit
+                </button>
+            </form>
+        </div>
 
-    {{ form.as_p }}
-    {{imgform.as_p}}
-    <input type="submit" value = "프로필 수정">
-    </form>
+
 {% endblock  %}

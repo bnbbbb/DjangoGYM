@@ -49,7 +49,7 @@
                     </div>
                     <hr />
                     <div class="view-contents">
-                        <p>{{ post_content }}</p>
+                        <p>{{ post_content | safe }}</p>
                         <img src="{{ post_img }}">
                     </div>
                     {% if post_writer == request.user %}

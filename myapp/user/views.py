@@ -49,7 +49,7 @@ class Login(View):
                 login(request, user)
                 return redirect('blog:list')
         context = {
-            'fomr':form
+            'form':form
         }
         return render(request, 'user/user_login.html', context)
 
@@ -81,7 +81,7 @@ class ProfileView(View):
             }
         if user_profile.image:  # 이미지가 있는 경우에만 context에 추가합니다.
             context['profile_img'] = user_profile.image.url
-        print(context)
+        # print(context)
         return render(request, 'user/user_profile.html', context)
 
 
@@ -102,7 +102,7 @@ class Update(View):
     def post(self, request):
         form = ProfileForm(request.POST, instance=request.user)
         imgform = ProfileImageForm(request.POST,request.FILES)
-        print(request.FILES)
+        # print(request.FILES)
         if form.is_valid() and imgform.is_valid():
             user = form.save(commit=False)
             user.save()

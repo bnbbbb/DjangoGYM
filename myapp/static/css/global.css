@@ -59,7 +59,18 @@ a {
 img {
 	vertical-align: bottom;
 }
-
+.default-image{
+    align-items: center;
+    width: 100px;
+    height: 100px;
+	border-radius: 50%;
+}
+.preview-image{
+    align-items: center;
+    width: 100px;
+    height: 100px;
+	border-radius: 50%;
+}
 a:focus,
 input:focus,
 button:focus,

@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'detailbase.html' %}
 {% load static %}
 
 {% block content %}
@@ -13,10 +13,18 @@
         </div>
     </div>
 </div>
+<div class="view">
+    <div class="max-width">
+        <section class="wrap-box">
+            <div class="inner">
     <form action="{% url 'blog:edit' pk=post.pk %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
         <img src="{% static 'assets/icon-modify-white.svg' %}" alt="" />
         <input type ="submit" value ="수정" class="button">
     </form>
+</div>
+</section>
+</div>
+</div>
 {% endblock %}

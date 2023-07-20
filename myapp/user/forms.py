@@ -2,6 +2,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, User
 from django import forms
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
+from django.forms import ClearableFileInput
 from .models import Profile
 
 User = get_user_model()
@@ -31,6 +32,7 @@ class ProfileImageForm(forms.ModelForm):
     class Meta:
         model=Profile
         fields =['image']
+        widget=ClearableFileInput(attrs={'class': 'file-input'})
 
 class LoginForm(AuthenticationForm):
     class Meta:
@@ -39,6 +41,7 @@ class LoginForm(AuthenticationForm):
 
 
 class PasswordForm(PasswordChangeForm):
-    class Meta:
-        model=User
-        fields = ['password']
+    # class Meta:
+    #     model=User
+    #     fields = ['password']
+    pass

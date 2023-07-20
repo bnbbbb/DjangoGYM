@@ -13,7 +13,9 @@
 	--gray-text: #6f6f6f;
 	--border-radius: 0.4em;
 }
-
+body {
+	background-color: black;
+}
 /* 공통 css */
 h1,
 a,
@@ -57,7 +59,18 @@ a {
 img {
 	vertical-align: bottom;
 }
-
+.default-image{
+    align-items: center;
+    width: 100px;
+    height: 100px;
+	border-radius: 50%;
+}
+.preview-image{
+    align-items: center;
+    width: 100px;
+    height: 100px;
+	border-radius: 50%;
+}
 a:focus,
 input:focus,
 button:focus,

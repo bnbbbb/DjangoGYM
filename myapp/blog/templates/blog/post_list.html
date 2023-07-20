@@ -59,8 +59,8 @@
                             <dt class="a11y-hidden">Created</dt>
                             <dd class="created">{{post.created_at}}</dd>
                         </dl>
-                        <p class="post-description">
-                            {{post.content}}
+                        <p class="post-description" >
+                            {{post.content | safe}}
                         </p>
                     </div>
                     {% comment %} {% endif %} {% endcomment %}
@@ -78,4 +78,15 @@
     </ul>
 </div>
 </main>
+<script>
+    // JavaScript 코드
+    // content에 이미지 보이는거 지워줌
+    document.addEventListener('DOMContentLoaded', function () {
+        let postDescription = document.querySelectorAll('p img');
+
+        for (let img of postDescription) {
+            img.style.display = 'none';
+        }
+    });
+</script>
 {% endblock %}
