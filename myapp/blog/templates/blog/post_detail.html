@@ -16,7 +16,11 @@
                 <!-- author -->
                     <dl class="author-wrap">
                         <dt class="a11y-hidden">Author</dt>
-                        <dd class="author"><img src="{{profile.image.url}}" alt="" /> Chilli</dd>
+                        {% if profile.image %}
+                        <dd class="author"><img src="{{profile.image.url}}" alt="" /> {{post_name}}</dd>
+                        {% else %}
+                        <dd class="author"><img src="{% static 'assets/default.png'%}" alt="" /> {{post_name}}</dd>
+                        {%endif%}
                         <dt class="a11y-hidden">Created</dt>
                         <dd class="created">{{post_created_at}}</dd>
                         <dd class="author">조회수 {{post_count}}</dd>
@@ -25,18 +29,9 @@
                     <dl class="category">
                         <dt class="a11y-hidden">Category</dt>
                     {% if tags %}
-                        <ul>
                             {% for tag in tags %}
                                 <dd>{{tag.name}}
-                                    {% if tag.writer == request.user %}
-                                        <form action ="{% url 'blog:tag-delete' pk=tag.pk %}" method = "post">
-                                            {% csrf_token %}
-                                            <input type = "submit" value ="X" class ="btn btn-success"> </input>
-                                        </form>
-                                    {% endif %}
-                                </li>
                             {% endfor %}
-                        </ul>
                     {% else %}
                     {% endif%}
 

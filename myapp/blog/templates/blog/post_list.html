@@ -23,8 +23,13 @@
 <main>
 <form action="{% url 'blog:search'  tag='{{q}}'%}" method="get" class="mt-5">
     <div class="form-group">
-        <label for="tagInput">검색:</label>
-        <input type="text" name="q" id="tagInput" class="form-control" placeholder="검색어를 입력하세요">
+        <select name="category" class="form-select form-select-lg">
+            <option>카테고리 선택</option>
+            <option value="address">주소</option>
+            <option value="tag">태그</option>
+            <option value="content">내용</option>
+        </select>
+        <input type="text" name="q" class="form-control form-control-lg" placeholder="검색어를 입력하세요">
     </div>
     <img src="{% static 'assets/icon-modify-white.svg' %}" alt="" />
     <button type="submit" class="button" style="margin:10px 0 30px 0">검색</button>
@@ -45,8 +50,12 @@
                     <div class="contents-wrap">
                         <dl class="category">
                             <dt class="a11y-hidden">Category</dt>
-                            <dd>Life</dd>
-                            <dd>Style</dd>
+                            {% if post.tags.all %}
+                            {% for tag in post.tags.all %}
+                                <dd>{{tag.name}}
+                            {% endfor %}
+                    {% else %}
+                    {% endif%}
                         </dl>
                         <h3>{{post.title}}</h3>
                         <dl class="author-wrap">
