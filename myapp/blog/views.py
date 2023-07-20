@@ -94,7 +94,6 @@ class Update(View):
         post = Post.objects.get(pk=pk)
         
         form = PostForm(initial={'title':post.title, 'content':post.content, 'image':post.image})
-        print(form)
         context = {
             'title':'Blog',
             'form':form,
@@ -115,7 +114,6 @@ class Update(View):
                 post.image = image_file
             post.save()
             return redirect('blog:detail', pk=pk)
-        print('qwoueihaskjhfdgas',form.errors)
         context = {
             'form':form
         }
