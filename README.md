@@ -102,21 +102,32 @@
 <img src="./readme/model.png" >
 
 ## 6. 페이지 UI
-- user-profile
+- user-회원가입 화면입니다.
+<img src="./readme/user_register.png">
 
-<img src="./readme/user_register.png" style="width:300px; height:400px;">
-<img src="./readme/user_login.png" style="width:300px; height:400px;">
-<img src="./readme/user_password.png" style="width:300px; height:400px;">
-<img src="./readme/useredit.png" style="width:300px; height:400px;">
-<img src="./readme/userprofile.png" style="width:300px; height:400px;">
+- 회원가입 후 로그인 화면입니다. 
+<img src="./readme/user_login.png" >
 
-- blog-post
+- user 프로필 변경 화면입니다. 
+<img src="./readme/useredit.png" >
 
-<img src="./readme/blog.png" style="width:300px; height:400px;">
-<img src="./readme/bloglist.png" style="width:300px; height:400px;">
-<img src="./readme/post.png" style="width:300px; height:400px;">
+- user 패스워드 변경 화면입니다.
+<img src="./readme/user_password.png" >
 
-- Markdown으로 변경할 예정입니다.
+- user 프로필 보는 화면입니다. 
+- 닫기 버튼, 프로필 수정 버튼이 아직은 없습니다. 
+<img src="./readme/userprofile.png" >
+
+- blog화면입니다. 
+<img src="./readme/blog.png">
+
+- bloglist를 보는 화면입니다. 
+<img src="./readme/bloglist.png">
+
+- blogpost 작성하는 화면입니다. 
+<img src="./readme/post.png">
+
+- summernote를 활용하여 만들었지만 추후에 toastUI로 변경할 예정입니다. 
 
 ## 7. 실행화면 
 - user-profile
