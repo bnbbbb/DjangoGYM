@@ -46,7 +46,10 @@
                     <a href="{% url 'blog:detail' pk=post.pk %}" class= "
                     post">
                         <article>
-                    <img src="{{post.image.url}}" alt="">
+                    {% if post.image %}
+                        <img src="{{post.image.url}}" alt="">
+                    {% comment %} {% else %} {% endcomment %}
+                        {% endif %}
                     <div class="contents-wrap">
                         <dl class="category">
                             <dt class="a11y-hidden">Category</dt>

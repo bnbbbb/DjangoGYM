@@ -1,15 +1,16 @@
 from django import forms
 from .models import Post, Review, Tag
-from django_summernote.widgets import SummernoteWidget
+# from django_summernote.widgets import SummernoteWidget
 
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['title', 'content', 'image']
+        fields = ['title','content','thumbnail','image']
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'input-form col-md-12 mx-auto'}),
-            'content': SummernoteWidget(attrs={'summernote': {'width': '100%', 'height': '500px'}}), 
+            'title': forms.TextInput(attrs={'class': 'form-control form-control-lg'}),
+            'content': forms.Textarea(attrs={'class': 'form-control', 'style': 'display: none;', 'id':'content'}),
         }
+        
 
 
 class ReviewForm(forms.ModelForm):

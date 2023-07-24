@@ -35,8 +35,6 @@
                     {% else %}
                     {% endif%}
 
-                    {% comment %} <dd>Life</dd>
-                    <dd>Style</dd> {% endcomment %}
                 </dl>
                     <div class="title-wrap">
                         <h2>{{ post_title }}</h2>
@@ -44,7 +42,7 @@
                     </div>
                     <hr />
                     <div class="view-contents">
-                        <p>{{ post_content | safe }}</p>
+                        <p>{{ post_content|safe}}</p>
                         <img src="{{ post_img }}">
                     </div>
                     {% if post_writer == request.user %}

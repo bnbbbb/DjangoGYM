@@ -24,6 +24,12 @@ class Registration(View):
             user.save()
             Profile.objects.create(user=user)
             return redirect('user:login')
+        else:  # 폼이 유효하지 않은 경우에 대한 처리 추가
+            context = {
+                'title': 'User',
+                'form': form
+            }
+            return render(request, 'user/user_register.html', context)
 
 
 ### Login

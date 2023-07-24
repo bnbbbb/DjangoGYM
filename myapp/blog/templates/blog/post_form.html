@@ -1,6 +1,11 @@
 {% extends "detailbase.html" %}
 {% load static %}
 
+{% block extra_head %}
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css">
+    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+{% endblock %}
+<script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
 {% block content %}
 <div class="banner">
     <div class="max-width">
@@ -17,15 +22,49 @@
     <div class="max-width">
         <section class="wrap-box">
             <div class="inner">
-                <form action="{% url 'blog:write' %}" method="post" enctype="multipart/form-data">
+                <form id="write-form" action="{% url 'blog:write' %}" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
-                        {{ form.as_p }}
+                        {{ form.title }}
+                        {{ form.image }}
+                <div id="toast-editor"></div>
+                <input id="form-content" name="content" type="hidden">
+                <input id="form-thumbnail" name="thumbnail" type="hidden">
                         <img src="{% static 'assets/icon-modify-white.svg' %}" alt="" />
-                        <input type="submit" value="WRITE" class="button"> 
+                        <input type="submit" value="WRITE" class="button">
                     </div>
                 </form>
             </div>
         </section>
     </div>
 </div>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+    const Editor = toastui.Editor;
+    
+    
+    const editor = new Editor({
+        el: document.querySelector("#toast-editor"),
+        height: "500px",
+        initialEditType: "markdown",
+        previewStyle: "vertical",
+    });
+
+    const write_form = document.querySelector('#write-form');
+    const form_content = document.querySelector('#form-content')
+    const form_thumbnail = document.querySelector('#form-thumbnail')
+
+    write_form.addEventListener("submit", (e) => {
+    e.preventDefault()
+    form_content.value = editor.getHTML();
+    const thumbnail = form_content.value.match(/<img[^>]+src="?([^"\s]+)"?\s*[^>]*>/);
+    if (thumbnail) {
+        form_thumbnail.value = thumbnail[1];
+    }
+    else {
+        form_thumbnail.value = `/static/images/post-img${Math.floor(Math.random() * 6) + 1}.jpg`
+    }
+    write_form.submit()
+    })
+</script>
 {% endblock %}

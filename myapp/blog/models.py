@@ -11,6 +11,8 @@ class Post(models.Model):
     name = models.CharField(max_length=20)
     address = models.CharField(max_length=40)
     count = models.IntegerField(default = 0)
+    thumbnail = models.ImageField(upload_to='blog/media',null=True,blank=True)
+    
     image = models.ImageField(upload_to = 'blog/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

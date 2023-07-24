@@ -77,9 +77,8 @@ class Write(LoginRequiredMixin, View):
             post.writer = request.user
             post.name = request.user.name
             post.address = request.user.fulladdress
-            if 'image' in request.FILES:
-                if post.image:
-                    default_storage.delete(post.image.path)
+            # if 'image' in request.FILES:
+            # post.content = request.POST.get('content', '')  
             post.save()
             return redirect('blog:list')
         
@@ -104,18 +103,27 @@ class Update(View):
     def post(self, request, pk):
         post = Post.objects.get(pk=pk)
         form = PostForm(request.POST, request.FILES)
+        # if post.image and 'image' in request.FILES:
+        #     default_storage.delete(post.image.path)
+        # content_data = request.POST.get('content', '')
+        # post.content = content_data
         if form.is_valid():
-            post.title = form.cleaned_data['title']
-            post.content = form.cleaned_data['content']
-            image_file = request.FILES.get('image')
-            if 'image' in request.FILES:
-                if post.image:
-                    default_storage.delete(post.image.path)
-                post.image = image_file
+            # post.title = form.cleaned_data['title']
+            # post.content = form.cleaned_data['content']
+            # image_file = request.FILES.get('image')
+            post.title = request.POST['title']
+            post.content = request.POST['content']
+            print(post.content)
+            print("Form data before save:", form.cleaned_data)
+
             post.save()
+            
+            print("Form data after save:", form.cleaned_data)
             return redirect('blog:detail', pk=pk)
+        
         context = {
-            'form':form
+            'form': form,
+            'post': post
         }
         return render(request, 'blog/post_detail.html', context)
 
