@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Q
 from django.core.files.storage import default_storage
+from django.http import JsonResponse
 from .models import Post, Review, Tag
 from user.models import Profile
 # from user.models import BusinessUser
@@ -38,7 +39,11 @@ class DetailView(View):
         tag_form = TagForm()
         post.count += 1
         post.save()
-        # print(post.image)
+        like_count = post.like_users.count()
+        # print(post.like_users.all())
+        like_exist = post.like_users.all()
+        #     # print(request.user in post.like_users.all())
+        #     like_exist = True
         context = {
             'title' : 'Blog',
             'post_id' : pk,
@@ -48,6 +53,8 @@ class DetailView(View):
             'post_created_at' : post.created_at,
             'post_name': post.name,
             'post_count':post.count,
+            'like_count':like_count,
+            'like_exist':like_exist,
             # 'post_img':post.image.url,
             'reviews' : reviews,
             'review_form' : review_form,
@@ -266,3 +273,40 @@ class SearchTag(View):
             'title': 'Blog',
         }
         return render(request, 'blog/post_list.html', context)
+
+
+class LikePost(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        post_id = kwargs['pk']
+        post = get_object_or_404(Post, pk=post_id)
+
+        if request.user in post.like_users.all():
+            post.like_users.remove(request.user)
+            # liked = False  # 이 줄은 삭제합니다.
+        else:
+            post.like_users.add(request.user)
+            # liked = True  # 이 줄은 삭제합니다.
+
+        return redirect('blog:detail', pk=post_id)
+
+
+# 비동기 통신 
+# class LikePost(LoginRequiredMixin, View):
+#     def post(self, request, *args, **kwargs):
+#         post_id = kwargs['pk']
+#         post = get_object_or_404(Post, pk=post_id)
+
+#         if request.user in post.like_users.all():
+#             post.like_users.remove(request.user)
+#             liked = False
+#         else:
+#             post.like_users.add(request.user)
+#             liked = True
+
+#         # 좋아요 상태와 좋아요 수를 JSON 형태로 반환합니다.
+#         response_data = {
+#             'liked': liked,
+#             'like_count': post.like_users.count(),
+#         }
+#         print(post.like_users.count())
+#         return JsonResponse(response_data)

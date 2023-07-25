@@ -1,7 +1,7 @@
 {% extends 'detailbase.html' %}
 {% load static %}
-
 {% block content %}
+
 <div class="banner" style="background-image: url({{ post_img }})">
     <div class="max-width">
         <div class="banner-contents">
@@ -38,7 +38,22 @@
                 </dl>
                     <div class="title-wrap">
                         <h2>{{ post_title }}</h2>
-                        <button class="btn-like">Like</button>
+                        {% if request.user.is_authenticated %}
+                        {% if request.user in like_exist %}
+                            <form action="{% url 'blog:like' pk=post_id %}" method="post" id="like-form" data-post-id="{{ post.pk }}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-likeliked" id='like-button'>Like</button>
+                            </form>
+                        {% else %}
+                            <form action="{% url 'blog:like' pk=post_id %}" method="post" id="like-form" data-post-id="{{ post.pk }}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-like" id='like-button'>Like</button>
+                            </form>
+                            {% endif %}
+                            <p id="like-count">{{ like_count }}명이 게시물을 좋아합니다.</p>
+                    {% else %}
+                        <p>좋아요를 누르려면 로그인하세요.</p>
+                    {% endif %}
                     </div>
                     <hr />
                     <div class="view-contents">
@@ -125,8 +140,11 @@
     {% else %}
     <p>X</p>
     {% endif%}
-    {% endblock %}
 </div>
 </section>
 </div>
 </div>
+{% endblock %}
+{% block extra_scripts %}
+    {% comment %} <script src="{% static 'js/like.js' %}" defer></script> {% endcomment %}
+{% endblock %}

@@ -83,7 +83,25 @@
 	outline-color: rgba(var(--red-rgb), 0.2);
 	box-shadow: none;
 }
-
+.btn-likeliked{
+	width: 12rem;
+	height: 4rem;
+	padding-left: 3rem;
+	border: 1px solid rgba(var(--red-rgb), 0.5);
+	border-radius: var(--border-radius);
+	background: var(--red-color) url(../assets/icon-like-white.svg) no-repeat 2.5rem 50% / 2.4rem;
+	transition: all 0.3s;
+	
+}
+.btn-likeliked:hover,
+.btn-likeliked.active {
+	background: var(--white-color) url(../assets/icon-like.svg) no-repeat 2.5rem 50% / 2.4rem;
+	color: var(--white-color);
+}
+.btn-likeliked:focus {
+	outline-color: rgba(var(--red-rgb), 0.2);
+	box-shadow: none;
+}
 .btn-modify,
 .btn-delete {
 	width: 4rem;
