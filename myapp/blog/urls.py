@@ -18,4 +18,5 @@ urlpatterns =[
     # 태그 삭제
     path("detal/hashtag/<int:pk>/delete", views.TagDelete.as_view(), name = "tag-delete"),
     path('search/<str:tag>', views.SearchTag.as_view(), name='search'),
+    path('detail/<int:pk>/like/', views.LikePost.as_view(), name='like'),
 ]

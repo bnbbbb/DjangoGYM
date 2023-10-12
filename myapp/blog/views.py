@@ -121,44 +121,44 @@ class Write(APIView):
 
 
 
-# class Update(View):
-#     def get(self, request, pk):
-#         post = Post.objects.get(pk=pk)
+class Update(View):
+    def get(self, request, pk):
+        post = Post.objects.get(pk=pk)
         
-#         form = PostForm(initial={'title':post.title, 'content':post.content, 'image':post.image})
-#         context = {
-#             'title':'Blog',
-#             'form':form,
-#             'post':post
-#         }
-#         return render(request, 'blog/post_edit.html', context)
+        form = PostForm(initial={'title':post.title, 'content':post.content, 'image':post.image})
+        context = {
+            'title':'Blog',
+            'form':form,
+            'post':post
+        }
+        return render(request, 'blog/post_edit.html', context)
     
-#     def post(self, request, pk):
-#         post = Post.objects.get(pk=pk)
-#         form = PostForm(request.POST, request.FILES)
-#         # if post.image and 'image' in request.FILES:
-#         #     default_storage.delete(post.image.path)
-#         # content_data = request.POST.get('content', '')
-#         # post.content = content_data
-#         if form.is_valid():
-#             # post.title = form.cleaned_data['title']
-#             # post.content = form.cleaned_data['content']
-#             # image_file = request.FILES.get('image')
-#             post.title = request.POST['title']
-#             post.content = request.POST['content']
-#             print(post.content)
-#             print("Form data before save:", form.cleaned_data)
+    def post(self, request, pk):
+        post = Post.objects.get(pk=pk)
+        form = PostForm(request.POST, request.FILES)
+        # if post.image and 'image' in request.FILES:
+        #     default_storage.delete(post.image.path)
+        # content_data = request.POST.get('content', '')
+        # post.content = content_data
+        if form.is_valid():
+            # post.title = form.cleaned_data['title']
+            # post.content = form.cleaned_data['content']
+            # image_file = request.FILES.get('image')
+            post.title = request.POST['title']
+            post.content = request.POST['content']
+            print(post.content)
+            print("Form data before save:", form.cleaned_data)
 
-#             post.save()
+            post.save()
             
-#             print("Form data after save:", form.cleaned_data)
-#             return redirect('blog:detail', pk=pk)
+            print("Form data after save:", form.cleaned_data)
+            return redirect('blog:detail', pk=pk)
         
-#         context = {
-#             'form': form,
-#             'post': post
-#         }
-#         return render(request, 'blog/post_detail.html', context)
+        context = {
+            'form': form,
+            'post': post
+        }
+        return render(request, 'blog/post_detail.html', context)
 
 
 class Delete(View):

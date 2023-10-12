@@ -12,6 +12,7 @@ class Post(models.Model):
     address = models.CharField(max_length=40, blank=True)
     count = models.IntegerField(default = 0)
     thumbnail = models.ImageField(upload_to='blog/media',null=True,blank=True)
+    # like_users = models.ManyToManyField(User, related_name='liked_posts')
     image = models.ImageField(upload_to = 'blog/', blank=True, null=True)
     is_active = models.BooleanField(default = True)
     created_at = models.DateTimeField(auto_now_add = True)
