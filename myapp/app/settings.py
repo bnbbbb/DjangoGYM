@@ -45,9 +45,30 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # 'django_summernote',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'rest_framework_simplejwt',
+	# 'rest_framework_simplejwt.token_blacklist',
+    "channels",
+    'corsheaders',
     "blog",
     "user",
 ]
+
+REST_FRAMEWORK = {
+    'NON_FIELD_ERRORS_KEY':'errors',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE' : 12,
+}
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer", 
+    },
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

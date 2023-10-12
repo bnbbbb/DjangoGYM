@@ -6,6 +6,19 @@ from django.db.models import Q
 from django.core.files.storage import default_storage
 from .models import Post, Review, Tag
 from user.models import Profile
+
+
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
+from django.contrib.auth import get_user_model
+from rest_framework.views import APIView
+from .serializers import PostSerializer
+from user.serializers import UserSerializer
+from user.models import User
+
+
 # from user.models import BusinessUser
 from .forms import PostForm, ReviewForm, TagForm, SearchForm
 # Create your views here.
@@ -28,104 +41,124 @@ class Index(View):
         return render(request, 'blog/post_list.html', context)
 
 
-class DetailView(View):
-    def get(self, request, pk):
-        post = Post.objects.prefetch_related('review_set').get(pk=pk)
-        profile = Profile.objects.get(user=post.writer)
-        reviews = post.review_set.all()
-        review_form = ReviewForm()
-        tags = post.tags.all()
-        tag_form = TagForm()
-        post.count += 1
-        post.save()
-        # print(post.image)
-        context = {
-            'title' : 'Blog',
-            'post_id' : pk,
-            'post_title' : post.title,
-            'post_content' : post.content,
-            'post_writer' : post.writer,
-            'post_created_at' : post.created_at,
-            'post_name': post.name,
-            'post_count':post.count,
-            # 'post_img':post.image.url,
-            'reviews' : reviews,
-            'review_form' : review_form,
-            'tags' : tags,
-            'tag_form':tag_form,
-            'profile':profile
-        }
-        if post.image:  # 이미지가 있는 경우에만 context에 추가합니다.
-            context['post_img'] = post.image.url
-        return render(request, 'blog/post_detail.html', context)
-
-
-class Write(LoginRequiredMixin, View):
-    def get(self, request):
-        form = PostForm()
-        context = {
-            'form': form,
-        }
-        return render(request, 'blog/post_form.html', context)
-        # else:
-        #     return redirect('blog:list')
-            
-    def post(self, request):
-        form = PostForm(request.POST, request.FILES)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.writer = request.user
-            post.name = request.user.name
-            post.address = request.user.fulladdress
-            # if 'image' in request.FILES:
-            # post.content = request.POST.get('content', '')  
-            post.save()
-            return redirect('blog:list')
-        
-        context = {
-            'form':form
-        }
-        return render(request, 'blog/post_form.html', context)
-
-
-class Update(View):
-    def get(self, request, pk):
-        post = Post.objects.get(pk=pk)
-        
-        form = PostForm(initial={'title':post.title, 'content':post.content, 'image':post.image})
-        context = {
-            'title':'Blog',
-            'form':form,
-            'post':post
-        }
-        return render(request, 'blog/post_edit.html', context)
+class List(APIView):
     
-    def post(self, request, pk):
-        post = Post.objects.get(pk=pk)
-        form = PostForm(request.POST, request.FILES)
-        # if post.image and 'image' in request.FILES:
-        #     default_storage.delete(post.image.path)
-        # content_data = request.POST.get('content', '')
-        # post.content = content_data
-        if form.is_valid():
-            # post.title = form.cleaned_data['title']
-            # post.content = form.cleaned_data['content']
-            # image_file = request.FILES.get('image')
-            post.title = request.POST['title']
-            post.content = request.POST['content']
-            print(post.content)
-            print("Form data before save:", form.cleaned_data)
-
-            post.save()
-            
-            print("Form data after save:", form.cleaned_data)
-            return redirect('blog:detail', pk=pk)
-        
-        context = {
-            'form': form,
-            'post': post
+    def get(self, request):
+        posts = Post.objects.all()
+        # serializer = BlogSerializer(posts, many=True)
+        # serializer = serializer.data
+        data = []
+        for post in posts:
+            post_info = {
+                'id' : post.id,
+                # 'content' : post.content, 
+                'title' : post.title,
+                # 'writer' : post.writer,
+                # 'image' : post.image,
+                
+            }
+            add_post = {
+                'post' : post_info
+            }
+            data.append(add_post)
+        response_data = {
+            'posts' : data
         }
-        return render(request, 'blog/post_detail.html', context)
+        return Response(response_data, status=status.HTTP_200_OK)
+
+
+class DetailView(APIView):
+    def get(self, request):
+        post = Post.objects.get(id=request.data['post_id'])
+        reviews = Review.objects.filter(post=post)
+        tag = Tag.objects.filter(post=post)
+        writer_info = UserSerializer(post.writer).data
+        # like = 
+        
+        reviews_infos = []
+        
+        # for review in reviews:
+            # reviews_info = {}
+        post_info = {
+                'id' : post.id,
+                # 'content' : post.content, 
+                'title' : post.title,
+                # 'writer' : post.writer,
+                # 'image' : post.image,
+                
+            }
+        post_data = PostSerializer(post).data
+        data = {
+            'post' : post_info,
+            'review': reviews,
+            'write' : writer_info,
+        }
+        return Response(data, status = status.HTTP_200_OK)
+
+
+class Write(APIView):
+    def post(self, request):
+        # user = request.user
+        # post_data = {
+        #     'title' : request.data['title'],
+        #     'content' : request.data['content'],
+        #     # 'writer' : user,
+        #     'writer' : request.data['writer'],
+        # }
+        
+        serializer = PostSerializer(data=request.data)
+        if serializer.is_valid():
+            post = serializer.save()
+            data = {
+                'message': '게시글 등록 완료',
+                'post': serializer.data  # Post 객체를 PostSerializer를 사용하여 직렬화
+            }
+            return Response(data, status=status.HTTP_201_CREATED)
+        errors = serializer.errors
+        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+# class Update(View):
+#     def get(self, request, pk):
+#         post = Post.objects.get(pk=pk)
+        
+#         form = PostForm(initial={'title':post.title, 'content':post.content, 'image':post.image})
+#         context = {
+#             'title':'Blog',
+#             'form':form,
+#             'post':post
+#         }
+#         return render(request, 'blog/post_edit.html', context)
+    
+#     def post(self, request, pk):
+#         post = Post.objects.get(pk=pk)
+#         form = PostForm(request.POST, request.FILES)
+#         # if post.image and 'image' in request.FILES:
+#         #     default_storage.delete(post.image.path)
+#         # content_data = request.POST.get('content', '')
+#         # post.content = content_data
+#         if form.is_valid():
+#             # post.title = form.cleaned_data['title']
+#             # post.content = form.cleaned_data['content']
+#             # image_file = request.FILES.get('image')
+#             post.title = request.POST['title']
+#             post.content = request.POST['content']
+#             print(post.content)
+#             print("Form data before save:", form.cleaned_data)
+
+#             post.save()
+            
+#             print("Form data after save:", form.cleaned_data)
+#             return redirect('blog:detail', pk=pk)
+        
+#         context = {
+#             'form': form,
+#             'post': post
+#         }
+#         return render(request, 'blog/post_detail.html', context)
 
 
 class Delete(View):
