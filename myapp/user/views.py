@@ -3,143 +3,139 @@ from django.views import View
 from django.contrib.auth import authenticate, login, logout
 from django.core.files.storage import default_storage
 from .models import Profile
-from .forms import RegisterForm, LoginForm, ProfileForm, PasswordForm, ProfileImageForm
+# from .forms import RegisterForm, LoginForm, ProfileForm, PasswordForm, ProfileImageForm
 # Create your views here.
 
-### Register
-class Registration(View):
-    def get(self, request):
-        if request.user.is_authenticated:
-            return redirect('blog:list')
-        form = RegisterForm()
-        context = {
-            'title':'User',
-            'form':form
-        }
-        return render(request, 'user/user_register.html', context)
-    def post(self, request):
-        form = RegisterForm(request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.save()
-            Profile.objects.create(user=user)
-            return redirect('user:login')
-        else:  # 폼이 유효하지 않은 경우에 대한 처리 추가
-            context = {
-                'title': 'User',
-                'form': form
-            }
-            return render(request, 'user/user_register.html', context)
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
+from django.contrib.auth import get_user_model
+from rest_framework.views import APIView
+from .serializers import UserSerializer
+from user.models import User
+from .tokens import create_jwt_pair_for_user
 
+
+### Register
+class Registration(APIView):
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(is_active=True)
+            data = {
+                "message": "회원가입",
+                "data" : serializer.data,
+            }
+            return Response(data, status=status.HTTP_201_CREATED)
+        errors = serializer.errors
+        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+        
 
 ### Login
-class Login(View):
-    def get(self, request):
-        if request.user.is_authenticated:
-            return redirect('blog:list')
-        form = LoginForm()
-        context = {
-            'form':form
-        }
-        return render(request, 'user/user_login.html', context)
+class Login(APIView):
     def post(self, request):
-        if request.user.is_authenticated:
-            return redirect('blog:list')
-        form = LoginForm(request, request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            user = authenticate(username=username, password=password)
+        id = request.data['username']
+        # print(id)
+        password = request.data['password']
+        
+        user = authenticate(username=id, password=password)
+        print(user)
+        if user is not None:
+            token = create_jwt_pair_for_user(user)
+            serializer = UserSerializer(user)
+            data = {
+                'Message' : '로그인',
+                'token' : token,
+                'user' : serializer.data,
+            }
+            return Response(data, status=status.HTTP_200_OK)
             
-            if user:
-                login(request, user)
-                return redirect('blog:list')
-        context = {
-            'form':form
-        }
-        return render(request, 'user/user_login.html', context)
+        else:
+            # 사용자가 인증되지 않은 경우에도 Response를 반환해야 합니다.
+            return Response({'Message': '로그인 실패'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 ### Logout
 class Logout(View):
     def get(self, request):
         logout(request)
-        return redirect('blog:list')
+        return Response({'message': '로그아웃에 성공하였습니다.'}, status=status.HTTP_200_OK)
 
 
 ### Profile
-class ProfileView(View):
-    def get(self, request):
-        user_profile = Profile.objects.get(user=request.user)
-        # user_profile = Profile.objects.all()
-        form = ProfileForm(initial={
-            'username': user_profile.user.username, 
-            'name': user_profile.user.name,
-            'business':user_profile.user.business, 
-            'address':user_profile.user.address,
-            'city':user_profile.user.city,
-            'town':user_profile.user.town,
-            # 'userprofile':user_profile.user.image
-            })
-        context = {
-            'user_profile': user_profile,
-            'form' : form
-            }
-        if user_profile.image:  # 이미지가 있는 경우에만 context에 추가합니다.
-            context['profile_img'] = user_profile.image.url
-        # print(context)
-        return render(request, 'user/user_profile.html', context)
+# class ProfileView(View):
+#     def get(self, request):
+#         user_profile = Profile.objects.get(user=request.user)
+#         # user_profile = Profile.objects.all()
+#         form = ProfileForm(initial={
+#             'username': user_profile.user.username, 
+#             'name': user_profile.user.name,
+#             'business':user_profile.user.business, 
+#             'address':user_profile.user.address,
+#             'city':user_profile.user.city,
+#             'town':user_profile.user.town,
+#             # 'userprofile':user_profile.user.image
+#             })
+#         context = {
+#             'user_profile': user_profile,
+#             'form' : form
+#             }
+#         if user_profile.image:  # 이미지가 있는 경우에만 context에 추가합니다.
+#             context['profile_img'] = user_profile.image.url
+#         # print(context)
+#         return render(request, 'user/user_profile.html', context)
 
 
 
-class Update(View):
-    def get(self, request):
-        form = ProfileForm(instance=request.user)
-        imgform = ProfileImageForm()
-        context = {
-            'form':form,
-            'imgform':imgform,
-            # 'user':user_profile
-        }
-        user_profile = Profile.objects.get(user=request.user)
-        if user_profile.image:  # 이미지가 있는 경우에만 context에 추가합니다.
-            context['profile_img'] = user_profile.image.url
-        return render(request, 'user/user_edit.html', context)
-    def post(self, request):
-        form = ProfileForm(request.POST, instance=request.user)
-        imgform = ProfileImageForm(request.POST,request.FILES)
-        # print(request.FILES)
-        if form.is_valid() and imgform.is_valid():
-            user = form.save(commit=False)
-            user.save()
-            profile = user.profile  # 연결된 Profile 인스턴스 가져오기
-            if 'image' in request.FILES:  # 이미지가 새로 업로드된 경우
-                # 기존 이미지 삭제
-                if profile.image:  # 이미지가 존재하는지 확인
-                    default_storage.delete(profile.image.path)  # 이미지 파일 삭제
-                # 새 이미지 할당
-                profile.image = imgform.cleaned_data['image']
-            profile.save()  # Profile 모델 저장
-            return redirect('user:profile')
-        else:
-            # 폼이 유효하지 않은 경우에 대한 처리 (예: 오류 메시지 표시)
-            context = {
-                'form': form,
-                'imgform':imgform
-            }
-            return render(request, 'user/user_edit.html', context)
+# class Update(View):
+#     def get(self, request):
+#         form = ProfileForm(instance=request.user)
+#         imgform = ProfileImageForm()
+#         context = {
+#             'form':form,
+#             'imgform':imgform,
+#             # 'user':user_profile
+#         }
+#         user_profile = Profile.objects.get(user=request.user)
+#         if user_profile.image:  # 이미지가 있는 경우에만 context에 추가합니다.
+#             context['profile_img'] = user_profile.image.url
+#         return render(request, 'user/user_edit.html', context)
+#     def post(self, request):
+#         form = ProfileForm(request.POST, instance=request.user)
+#         imgform = ProfileImageForm(request.POST,request.FILES)
+#         # print(request.FILES)
+#         if form.is_valid() and imgform.is_valid():
+#             user = form.save(commit=False)
+#             user.save()
+#             profile = user.profile  # 연결된 Profile 인스턴스 가져오기
+#             if 'image' in request.FILES:  # 이미지가 새로 업로드된 경우
+#                 # 기존 이미지 삭제
+#                 if profile.image:  # 이미지가 존재하는지 확인
+#                     default_storage.delete(profile.image.path)  # 이미지 파일 삭제
+#                 # 새 이미지 할당
+#                 profile.image = imgform.cleaned_data['image']
+#             profile.save()  # Profile 모델 저장
+#             return redirect('user:profile')
+#         else:
+#             # 폼이 유효하지 않은 경우에 대한 처리 (예: 오류 메시지 표시)
+#             context = {
+#                 'form': form,
+#                 'imgform':imgform
+#             }
+#             return render(request, 'user/user_edit.html', context)
 
 
-class Password(View):
-    def get(self, request):
-        form = PasswordForm(request.user)
-        context = {
-            'form':form
-        }
-        return render(request, 'user/user_password.html', context)
-    def post(self, request):
-        form = PasswordForm(request.user, request.POST)
+# class Password(View):
+#     def get(self, request):
+#         form = PasswordForm(request.user)
+#         context = {
+#             'form':form
+#         }
+#         return render(request, 'user/user_password.html', context)
+#     def post(self, request):
+#         form = PasswordForm(request.user, request.POST)
         
-        if form.is_valid():
-            form.save()
-            return redirect('blog:list')
+#         if form.is_valid():
+#             form.save()
+#             return redirect('blog:list')

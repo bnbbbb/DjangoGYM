@@ -8,8 +8,10 @@ urlpatterns =[
     # path('detail/<int:pk>', views.DetailView.as_view(), name='detail'),
     path('detail/', views.DetailView.as_view(), name='detail'),
     path('write/', views.Write.as_view(), name='write'),
-    path('detail/<int:pk>/edit/', views.Update.as_view(), name='edit'),
-    path('detail/<int:pk>/delete/', views.Delete.as_view(), name='delete'),
+    # path('detail/<int:pk>/edit/', views.Update.as_view(), name='edit'),
+    path('edit/', views.Update.as_view(), name='edit'),
+    # path('detail/<int:pk>/delete/', views.Delete.as_view(), name='delete'),
+    path('delete/', views.Delete.as_view(), name='delete'),
     path("detail/<int:pk>/comment/write/", views.ReviewWrite.as_view(), name='rv-write'),
     # detail/<int:pk> 글에 대한 id값
     # 코멘트 삭제

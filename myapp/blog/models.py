@@ -14,7 +14,7 @@ class Post(models.Model):
     thumbnail = models.ImageField(upload_to='blog/media',null=True,blank=True)
     # like_users = models.ManyToManyField(User, related_name='liked_posts')
     image = models.ImageField(upload_to = 'blog/', blank=True, null=True)
-    is_active = models.BooleanField(default = True)
+    is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add = True)
     updated_at = models.DateTimeField(auto_now = True)
     def save(self, *args, **kwargs):

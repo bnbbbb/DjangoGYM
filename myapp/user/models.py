@@ -6,9 +6,9 @@ from django.utils import timezone
 
 class UserManager(BaseUserManager):
     
-    def _create_user(self, username, password, address, is_staff, is_superuser, **extra_fields):
+    def _create_user(self, username, password, is_staff, is_superuser, **extra_fields):
         if not username:
-            raise ValueError('Must have an usernae')
+            raise ValueError('Must have an username')
         now = timezone.localtime()
         user = self.model(
             username = username,
@@ -25,8 +25,8 @@ class UserManager(BaseUserManager):
         
         return user
 
-    def create_user(self, username, password, **extra_fields):
-        return self._create_user(username, password, False,False, False, **extra_fields)
+    # def create_user(self, username, password, **extra_fields):
+        # return self._create_user(username, password, False,False, False, **extra_fields)
 
     def create_superuser(self, username, password, **extra_fields):
         return self._create_user(username, password, True,True, True, **extra_fields)
@@ -35,27 +35,26 @@ class UserManager(BaseUserManager):
 class User(AbstractUser):
     username = models.CharField(unique=True, max_length=20)
     # email = None
-    name = models.CharField(max_length=10)
-    address_choices = (('서울특별시', '서울특별시'), ('경기도', '경기도'), ('부산광역시', '부산광역시'), )
-    city = models.CharField(max_length=100)
-    town = models.CharField(max_length=100)
-    address = models.CharField(max_length=10, choices=address_choices)
-    fulladdress = models.CharField(max_length=100)
-    
+    business = models.BooleanField(default=False)
     is_staff = models.BooleanField(default = False)
     is_superuser = models.BooleanField(default = False)
     is_active = models.BooleanField(default=True)
     last_login = models.DateTimeField(null=True, blank=True)
     date_joined = models.DateTimeField(auto_now_add=True)
-    business = models.BooleanField(default=False)
     objects = UserManager()
-    
-    def save(self, *args, **kwargs):
-        self.fulladdress = f'{self.address} {self.city} {self.town}'
-        super().save(*args, **kwargs)
 
 
 class Profile(models.Model):
     user = models.OneToOneField('User', on_delete = models.CASCADE)
+    name = models.CharField(max_length=10)
     image = models.ImageField(upload_to = 'user/', blank=True, null=True)
+    address_choices = (('서울특별시', '서울특별시'), ('경기도', '경기도'), ('부산광역시', '부산광역시'), )
+    city = models.CharField(max_length=100)
+    town = models.CharField(max_length=100)
+    address = models.CharField(max_length=10, choices=address_choices)
+    fulladdress = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    def save(self, *args, **kwargs):
+        self.fulladdress = f'{self.address} {self.city} {self.town}'
+        super().save(*args, **kwargs)

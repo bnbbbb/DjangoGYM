@@ -61,10 +61,10 @@ class List(APIView):
                 'post' : post_info
             }
             data.append(add_post)
-        response_data = {
+        data = {
             'posts' : data
         }
-        return Response(response_data, status=status.HTTP_200_OK)
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class DetailView(APIView):
@@ -105,8 +105,9 @@ class Write(APIView):
         #     # 'writer' : user,
         #     'writer' : request.data['writer'],
         # }
-        
-        serializer = PostSerializer(data=request.data)
+        request_data = request.data.copy()
+        request_data['is_active'] = True
+        serializer = PostSerializer(data=request_data)
         if serializer.is_valid():
             post = serializer.save()
             data = {
@@ -118,54 +119,33 @@ class Write(APIView):
         return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class Update(APIView):
+    def post(self, request):
+        post = Post.objects.get(id=request.data['post_id'])
+        serializer = PostSerializer(post, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            data = {
+                'message' : '수정하였습니다.',
+                'post' : serializer.data
+            }
+            return Response(data, status=status.HTTP_200_OK)
+        errors = serializer.errors
+        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-class Update(View):
-    def get(self, request, pk):
-        post = Post.objects.get(pk=pk)
+class Delete(APIView):
+    def post(self, request):
+        post = Post.objects.get(id = request.data['post_id'])
         
-        form = PostForm(initial={'title':post.title, 'content':post.content, 'image':post.image})
-        context = {
-            'title':'Blog',
-            'form':form,
-            'post':post
+        post.is_active = False
+        post.save()
+        print(post)
+        data = {
+            "message" : "글 삭제 완료",
+            'post' : post.is_active
         }
-        return render(request, 'blog/post_edit.html', context)
-    
-    def post(self, request, pk):
-        post = Post.objects.get(pk=pk)
-        form = PostForm(request.POST, request.FILES)
-        # if post.image and 'image' in request.FILES:
-        #     default_storage.delete(post.image.path)
-        # content_data = request.POST.get('content', '')
-        # post.content = content_data
-        if form.is_valid():
-            # post.title = form.cleaned_data['title']
-            # post.content = form.cleaned_data['content']
-            # image_file = request.FILES.get('image')
-            post.title = request.POST['title']
-            post.content = request.POST['content']
-            print(post.content)
-            print("Form data before save:", form.cleaned_data)
-
-            post.save()
-            
-            print("Form data after save:", form.cleaned_data)
-            return redirect('blog:detail', pk=pk)
-        
-        context = {
-            'form': form,
-            'post': post
-        }
-        return render(request, 'blog/post_detail.html', context)
-
-
-class Delete(View):
-    def post(self, request, pk):
-        post = get_object_or_404(Post, pk=pk)
-        post.delete()
-        return redirect('blog:list')
+        return Response(data, status=status.HTTP_200_OK)
 
 
 ### Review
