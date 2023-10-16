@@ -28,8 +28,13 @@ class Registration(APIView):
                 "data" : serializer.data,
             }
             return Response(data, status=status.HTTP_201_CREATED)
-        errors = serializer.errors
-        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            errors = serializer.errors
+            data = {
+                'error' : errors,
+                'message' : '중복된 아이디가 있습니다. '
+            }
+            return Response(errors, status=status.HTTP_400_BAD_REQUEST)
         
 
 ### Login

@@ -32,7 +32,7 @@ SECRET_KEY = "django-insecure-^$5(*xt_2jplao5*u#b4q-t+2es^67np!^m(1(0#01#ogyv1o!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -53,6 +53,14 @@ INSTALLED_APPS = [
     'corsheaders',
     "blog",
     "user",
+]
+
+CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:5500",  # 원하는 도메인 주소
 ]
 
 REST_FRAMEWORK = {
@@ -78,6 +86,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",  
 ]
 
 ROOT_URLCONF = "app.urls"

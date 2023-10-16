@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Q
 from django.core.files.storage import default_storage
 from .models import Post, Review, Tag
-from user.models import Profile
+from user.models import Profile, User
 
 
 from rest_framework import status
@@ -97,6 +97,8 @@ class DetailView(APIView):
 
 
 class Write(APIView):
+    permission_classes = [IsAuthenticated]
+    
     def post(self, request):
         # user = request.user
         # post_data = {
@@ -105,21 +107,28 @@ class Write(APIView):
         #     # 'writer' : user,
         #     'writer' : request.data['writer'],
         # }
+        user = request.user
+        user = User.objects.get(username=user)
+        # print(user.id)
         request_data = request.data.copy()
-        request_data['is_active'] = True
+        # request_data['is_active'] = True
+        request_data['writer'] = user.id
         serializer = PostSerializer(data=request_data)
         if serializer.is_valid():
-            post = serializer.save()
+            post = serializer.save(is_active=True)
             data = {
                 'message': '게시글 등록 완료',
                 'post': serializer.data  # Post 객체를 PostSerializer를 사용하여 직렬화
             }
             return Response(data, status=status.HTTP_201_CREATED)
         errors = serializer.errors
+        print(errors)
         return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class Update(APIView):
+    permission_classes = [IsAuthenticated]
+    
     def post(self, request):
         post = Post.objects.get(id=request.data['post_id'])
         serializer = PostSerializer(post, data=request.data, partial=True)
@@ -135,6 +144,8 @@ class Update(APIView):
 
 
 class Delete(APIView):
+    permission_classes = [IsAuthenticated]
+    
     def post(self, request):
         post = Post.objects.get(id = request.data['post_id'])
         
