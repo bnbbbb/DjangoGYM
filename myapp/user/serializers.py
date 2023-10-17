@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from rest_framework.validators import ValidationError
-from .models import User
+from .models import User, Profile
 
 class UserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=80)
@@ -20,3 +20,11 @@ class UserSerializer(serializers.ModelSerializer):
         Token.objects.create(user=user)
 
         return user
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Profile
+        abstract = True
+        fields = '__all__'

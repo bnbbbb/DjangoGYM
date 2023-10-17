@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils import timezone
+from django.db.models.signals import post_save
+from django.conf import settings
 
 # Create your models here.
 
@@ -46,15 +48,15 @@ class User(AbstractUser):
 
 class Profile(models.Model):
     user = models.OneToOneField('User', on_delete = models.CASCADE)
-    name = models.CharField(max_length=10)
+    name = models.CharField(default='닉네임', max_length=10, null=True, blank=True)
     image = models.ImageField(upload_to = 'user/', blank=True, null=True)
-    address_choices = (('서울특별시', '서울특별시'), ('경기도', '경기도'), ('부산광역시', '부산광역시'), )
-    city = models.CharField(max_length=100)
-    town = models.CharField(max_length=100)
-    address = models.CharField(max_length=10, choices=address_choices)
-    fulladdress = models.CharField(max_length=100)
+    address = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
+    objects = models.Manager()
     
-    def save(self, *args, **kwargs):
-        self.fulladdress = f'{self.address} {self.city} {self.town}'
-        super().save(*args, **kwargs)
+def on_post_save_for_user(sender, **kwargs):
+    if kwargs['created']:
+        user = kwargs['instance']
+        Profile.objects.create(user=user)
+
+post_save.connect(on_post_save_for_user, sender=settings.AUTH_USER_MODEL)

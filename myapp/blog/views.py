@@ -20,7 +20,7 @@ from user.models import User
 
 
 # from user.models import BusinessUser
-from .forms import PostForm, ReviewForm, TagForm, SearchForm
+# from .forms import PostForm, ReviewForm, TagForm, SearchForm
 # Create your views here.
 
 
@@ -49,16 +49,23 @@ class List(APIView):
         # serializer = serializer.data
         data = []
         for post in posts:
+            print(post.writer)
+            writer = UserSerializer(post.writer).data
+            print(writer)
+            serializer = PostSerializer(post).data
             post_info = {
                 'id' : post.id,
-                # 'content' : post.content, 
+                'content' : post.content, 
                 'title' : post.title,
-                # 'writer' : post.writer,
+                'name' : post.name,
+                'writer': post.writer_id,
                 # 'image' : post.image,
-                
+                "post" : serializer
             }
             add_post = {
-                'post' : post_info
+                'post' : post_info,
+                'posts': serializer,
+                'writer': writer,
             }
             data.append(add_post)
         data = {
@@ -116,6 +123,7 @@ class Write(APIView):
         serializer = PostSerializer(data=request_data)
         if serializer.is_valid():
             post = serializer.save(is_active=True)
+            print(serializer.data)
             data = {
                 'message': '게시글 등록 완료',
                 'post': serializer.data  # Post 객체를 PostSerializer를 사용하여 직렬화

@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth import authenticate, login, logout
 from django.core.files.storage import default_storage
-from .models import Profile
 # from .forms import RegisterForm, LoginForm, ProfileForm, PasswordForm, ProfileImageForm
 # Create your views here.
 
@@ -12,8 +11,8 @@ from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
-from .serializers import UserSerializer
-from user.models import User
+from .serializers import UserSerializer, ProfileSerializer
+from user.models import User, Profile
 from .tokens import create_jwt_pair_for_user
 
 
@@ -43,7 +42,6 @@ class Login(APIView):
         id = request.data['username']
         # print(id)
         password = request.data['password']
-        
         user = authenticate(username=id, password=password)
         print(user)
         if user is not None:
@@ -69,9 +67,68 @@ class Logout(View):
 
 
 ### Profile
+class Profile(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        print(request.user)
+        # post = Profile.objects.get(id=request.data['post_id'])
+        # user = 
+        user_profile = User.objects.get(username=request.user)
+        print(user_profile.id)
+        # user = Profile.objects.get()
+        serializer = Profile.objects.filter(user = request.user)
+        print(serializer)
+        # print(serializer)
+        # if serializer.is_valid():
+            # serializer.save()
+            
+            # try:
+            #     image = request.FILES('profileImage')
+            # except:
+            #     is_image = False
+            # else:
+            #     is_image = True
+            # if is_image:
+            #     user_profile.save()
+                
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ProfileUpdate(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        # user_profile = Profile.objects.get(user=request.user)
+        user_profile = User.objects.get(username=request.user)
+        # print(user_profile.id)
+        # print(request.data)
+        serializer = ProfileSerializer(user_profile.id, data=request.data)
+        # print(serializer)
+        if serializer.is_valid():
+            serializer.save()
+            
+            try:
+                image = request.FILES['profileImage']
+            except:
+                is_image = False
+            else:
+                is_image = True
+                
+            if is_image:
+                # img_uploader = S3ImgUploader(image)
+                # uploaded_url = img_uploader.upload()
+                # user_profile.profileImage = uploaded_url
+                user_profile.save()
+            user_serializer = UserSerializer(request.user)
+            return Response(user_serializer.data, status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 # class ProfileView(View):
 #     def get(self, request):
-#         user_profile = Profile.objects.get(user=request.user)
+        # user_profile = Profile.objects.get(user=request.user)
 #         # user_profile = Profile.objects.all()
 #         form = ProfileForm(initial={
 #             'username': user_profile.user.username, 
