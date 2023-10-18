@@ -26,5 +26,4 @@ class ProfileSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Profile
-        abstract = True
         fields = '__all__'
