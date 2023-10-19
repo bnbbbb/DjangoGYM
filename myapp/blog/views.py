@@ -168,133 +168,133 @@ class Delete(APIView):
 
 
 ### Review
-class ReviewWrite(View):
-    def post(self, request, pk):
-        form = ReviewForm(request.POST)
-        try:
-            post = Post.objects.get(pk=pk)
-        except ObjectDoesNotExist as e:
-            print('Post does not exist.', str(e))
+# class ReviewWrite(View):
+#     def post(self, request, pk):
+#         form = ReviewForm(request.POST)
+#         try:
+#             post = Post.objects.get(pk=pk)
+#         except ObjectDoesNotExist as e:
+#             print('Post does not exist.', str(e))
         
-        reviews = Review.objects.select_related('post')
-        if form.is_valid():
-            content = form.cleaned_data['content']
-            writer = request.user
-            try:
-                review = Review.objects.create(post=post, content=content, writer=writer)
-            except ObjectDoesNotExist as e:
-                print('Post does not exist.', str(e))
-            except ValidationError as e:
-                print('Validation error occurred', str(e))                
-            return redirect('blog:detail', pk=pk)
-        tag_form = TagForm()
-        context = {
-            'title': 'Blog',
-            'post_id': pk,
-            'post_title': post.title,
-            'post_content' : post.content,
-            'post_name' : post.name,
-            'post_created_at' : post.created_at,
-            'reviews' : post.review_set.all(),
-            'review_form' : form,
-            'tags': post.tag_set.all(),
-            'tag_form': tag_form
-        }
-        return render(request, 'blog/post_detail.html', context)
+#         reviews = Review.objects.select_related('post')
+#         if form.is_valid():
+#             content = form.cleaned_data['content']
+#             writer = request.user
+#             try:
+#                 review = Review.objects.create(post=post, content=content, writer=writer)
+#             except ObjectDoesNotExist as e:
+#                 print('Post does not exist.', str(e))
+#             except ValidationError as e:
+#                 print('Validation error occurred', str(e))                
+#             return redirect('blog:detail', pk=pk)
+#         tag_form = TagForm()
+#         context = {
+#             'title': 'Blog',
+#             'post_id': pk,
+#             'post_title': post.title,
+#             'post_content' : post.content,
+#             'post_name' : post.name,
+#             'post_created_at' : post.created_at,
+#             'reviews' : post.review_set.all(),
+#             'review_form' : form,
+#             'tags': post.tag_set.all(),
+#             'tag_form': tag_form
+#         }
+#         return render(request, 'blog/post_detail.html', context)
 
 
-class ReviewDelete(View):
-    def post(self, request, pk):
-        try:
-            review = Review.objects.get(pk = pk)
-        except ObjectDoesNotExist as e:
-            print('Comment does not exist', str(e))
-        post_id = review.post.id
-        review.delete()
+# class ReviewDelete(View):
+#     def post(self, request, pk):
+#         try:
+#             review = Review.objects.get(pk = pk)
+#         except ObjectDoesNotExist as e:
+#             print('Comment does not exist', str(e))
+#         post_id = review.post.id
+#         review.delete()
         
-        return redirect('blog:detail', pk = post_id)
+#         return redirect('blog:detail', pk = post_id)
 
 
-### Tag
+# ### Tag
 
-class TagWrite(View):
-    def post(self, request, pk):
-        form = TagForm(request.POST)
-        try:
-            post = Post.objects.get(pk=pk)
-        except ObjectDoesNotExist as e:
-            print('Tag Does not exist', str(e))
-        reviews = Review.objects.select_related('post')
-        tags = Tag.objects.select_related('post')
+# class TagWrite(View):
+#     def post(self, request, pk):
+#         form = TagForm(request.POST)
+#         try:
+#             post = Post.objects.get(pk=pk)
+#         except ObjectDoesNotExist as e:
+#             print('Tag Does not exist', str(e))
+#         reviews = Review.objects.select_related('post')
+#         tags = Tag.objects.select_related('post')
         
-        if form.is_valid():
-            name = form.cleaned_data['name']
-            writer = request.user
-            try:
-                tag = Tag.objects.create(post = post, name=name, writer = writer)
-            except ObjectDoesNotExist as e:
-                print('Post does not exist.', str(e))
+#         if form.is_valid():
+#             name = form.cleaned_data['name']
+#             writer = request.user
+#             try:
+#                 tag = Tag.objects.create(post = post, name=name, writer = writer)
+#             except ObjectDoesNotExist as e:
+#                 print('Post does not exist.', str(e))
             
-            except ValidationError as e:
-                print('Valdation error occurred', str(e))
-            # FK로 연결된 애들은 객체상태로 넘겨줘야 됩니다. 
-            # comment = Comment(post = post) => comment.save()
-            return redirect('blog:detail', pk=pk)
-        # form.add_error(None, '폼이 유효하지 않습니다.')
-        review_form = ReviewForm()
-        context = {
-            'title': 'Blog',
-            'post_id': pk,
-            'post_title': post.title,
-            'post_content' : post.content,
-            'post_name' : post.name,
-            'post_created_at' : post.created_at,
-            'reviews' : post.review_set.all(),
-            'hashtags' : post.tag_set.all(),
-            'review_form' : review_form,
-            'tag_form' : form
+#             except ValidationError as e:
+#                 print('Valdation error occurred', str(e))
+#             # FK로 연결된 애들은 객체상태로 넘겨줘야 됩니다. 
+#             # comment = Comment(post = post) => comment.save()
+#             return redirect('blog:detail', pk=pk)
+#         # form.add_error(None, '폼이 유효하지 않습니다.')
+#         review_form = ReviewForm()
+#         context = {
+#             'title': 'Blog',
+#             'post_id': pk,
+#             'post_title': post.title,
+#             'post_content' : post.content,
+#             'post_name' : post.name,
+#             'post_created_at' : post.created_at,
+#             'reviews' : post.review_set.all(),
+#             'hashtags' : post.tag_set.all(),
+#             'review_form' : review_form,
+#             'tag_form' : form
             
-        }
-        return render(request, 'blog/post_detail.html', context)
+#         }
+#         return render(request, 'blog/post_detail.html', context)
 
 
-class TagDelete(View):
-    def post(self, request, pk):
-        # pk는 hashtag의 pk (hashtag_id)
-        # 해시태그 불러오기
-        try:
-            tag = Tag.objects.get(pk = pk)
+# class TagDelete(View):
+#     def post(self, request, pk):
+#         # pk는 hashtag의 pk (hashtag_id)
+#         # 해시태그 불러오기
+#         try:
+#             tag = Tag.objects.get(pk = pk)
             
-        except ObjectDoesNotExist as e:
-            print('HashTag does not exist.', str(e))
-        # 해쉬태그에 담겨 있는 FK의 포스트 pk 값 가져오기
-        post_id = tag.post.id
+#         except ObjectDoesNotExist as e:
+#             print('HashTag does not exist.', str(e))
+#         # 해쉬태그에 담겨 있는 FK의 포스트 pk 값 가져오기
+#         post_id = tag.post.id
         
-        # 해시태그 삭제 하기전에 값을 가져와야됩니다.
-        tag.delete()
+#         # 해시태그 삭제 하기전에 값을 가져와야됩니다.
+#         tag.delete()
         
-        return redirect('blog:detail', pk = post_id)
+#         return redirect('blog:detail', pk = post_id)
 
-class SearchTag(View):
-    def get(self, request, tag):
-        category = request.GET.get('category')
-        q = request.GET.get('q')
+# class SearchTag(View):
+#     def get(self, request, tag):
+#         category = request.GET.get('category')
+#         q = request.GET.get('q')
         
-        if not q:  # 검색어가 없는 경우
-            queryset = Post.objects.all()  # 모든 게시물
-        else:
-            # 선택한 카테고리에 따라 필터링
-            if category == 'address':
-                queryset = Post.objects.filter(address__icontains=q)
-            elif category == 'tag':
-                queryset = Post.objects.filter(tags__name__icontains=q)
-            elif category == 'content':
-                queryset = Post.objects.filter(content__icontains=q)
-            else:
-                queryset = Post.objects.none()  # 선택하지 않은 경우 빈 쿼리셋 반환
-        context = {
-            'posts': queryset,
-            'q': q,
-            'title': 'Blog',
-        }
-        return render(request, 'blog/post_list.html', context)
+#         if not q:  # 검색어가 없는 경우
+#             queryset = Post.objects.all()  # 모든 게시물
+#         else:
+#             # 선택한 카테고리에 따라 필터링
+#             if category == 'address':
+#                 queryset = Post.objects.filter(address__icontains=q)
+#             elif category == 'tag':
+#                 queryset = Post.objects.filter(tags__name__icontains=q)
+#             elif category == 'content':
+#                 queryset = Post.objects.filter(content__icontains=q)
+#             else:
+#                 queryset = Post.objects.none()  # 선택하지 않은 경우 빈 쿼리셋 반환
+#         context = {
+#             'posts': queryset,
+#             'q': q,
+#             'title': 'Blog',
+#         }
+#         return render(request, 'blog/post_list.html', context)

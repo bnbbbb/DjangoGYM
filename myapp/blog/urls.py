@@ -12,13 +12,13 @@ urlpatterns =[
     path('edit/', views.Update.as_view(), name='edit'),
     # path('detail/<int:pk>/delete/', views.Delete.as_view(), name='delete'),
     path('delete/', views.Delete.as_view(), name='delete'),
-    path("detail/<int:pk>/comment/write/", views.ReviewWrite.as_view(), name='rv-write'),
+    # path("detail/<int:pk>/comment/write/", views.ReviewWrite.as_view(), name='rv-write'),
     # detail/<int:pk> 글에 대한 id값
     # 코멘트 삭제
-    path("detail/comment/<int:pk>/delete/", views.ReviewDelete.as_view(), name='rv-delete'),
-    path("detal/<int:pk>/hashtag/write", views.TagWrite.as_view(), name = "tag-write"),
-    # 태그 삭제
-    path("detal/hashtag/<int:pk>/delete", views.TagDelete.as_view(), name = "tag-delete"),
-    path('search/<str:tag>', views.SearchTag.as_view(), name='search'),
+    # path("detail/comment/<int:pk>/delete/", views.ReviewDelete.as_view(), name='rv-delete'),
+    # path("detal/<int:pk>/hashtag/write", views.TagWrite.as_view(), name = "tag-write"),
+    # # 태그 삭제
+    # path("detal/hashtag/<int:pk>/delete", views.TagDelete.as_view(), name = "tag-delete"),
+    # path('search/<str:tag>', views.SearchTag.as_view(), name='search'),
     # path('detail/<int:pk>/like/', views.LikePost.as_view(), name='like'),
 ]
