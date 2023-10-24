@@ -15,8 +15,8 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
 from .serializers import PostSerializer
-from user.serializers import UserSerializer
-from user.models import User
+from user.serializers import UserSerializer, ProfileSerializer
+from user.models import User, Profile
 
 
 # from user.models import BusinessUser
@@ -75,11 +75,15 @@ class List(APIView):
 
 
 class DetailView(APIView):
-    def get(self, request):
-        post = Post.objects.get(id=request.data['post_id'])
-        reviews = Review.objects.filter(post=post)
-        tag = Tag.objects.filter(post=post)
-        writer_info = UserSerializer(post.writer).data
+    def get(self, request, pk):
+        # post = Post.objects.get(id=request.data['post_id'])
+        post = Post.objects.get(id=pk)
+        print(post.writer.id)
+        # reviews = Review.objects.filter(post=post)
+        # tag = Tag.objects.filter(post=post)
+        # writer_info = ProfileSerializer(post.writer).data
+        profile = Profile.objects.get(user=post.writer.id)
+        writer_info = ProfileSerializer(profile).data
         # like = 
         
         reviews_infos = []
@@ -88,17 +92,15 @@ class DetailView(APIView):
             # reviews_info = {}
         post_info = {
                 'id' : post.id,
-                # 'content' : post.content, 
+                'content' : post.content, 
                 'title' : post.title,
-                # 'writer' : post.writer,
-                # 'image' : post.image,
-                
+                'created' : post.created_at,
             }
         post_data = PostSerializer(post).data
         data = {
             'post' : post_info,
-            'review': reviews,
-            'write' : writer_info,
+            # 'review': reviews,
+            'writer' : writer_info,
         }
         return Response(data, status = status.HTTP_200_OK)
 
