@@ -14,9 +14,11 @@ from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
-from .serializers import PostSerializer
+from .serializers import PostSerializer, TagSerializer
 from user.serializers import UserSerializer, ProfileSerializer
 from user.models import User, Profile
+import markdown
+from bs4 import BeautifulSoup
 
 
 # from user.models import BusinessUser
@@ -25,46 +27,36 @@ from user.models import User, Profile
 
 
 ### Post
-class Index(View):
-    def get(self, request):
-        # print(request.user.username)
-        post_objs = Post.objects.all().order_by('-created_at')
-        profile = Profile.objects.filter(user__in=[post.writer for post in post_objs])
-        # print(profile[0].image.url)
-        # print(post_objs.qeury)
-        context = {
-            'posts':post_objs,
-            'profile': profile,
-            'title':'Blog'
-        }
-        
-        return render(request, 'blog/post_list.html', context)
-
-
 class List(APIView):
     
     def get(self, request):
+        # user = Profile.objects.get(user = request.user)
+        # print(request.user)
         posts = Post.objects.all()
-        # serializer = BlogSerializer(posts, many=True)
-        # serializer = serializer.data
         data = []
         for post in posts:
-            print(post.writer)
             writer = UserSerializer(post.writer).data
-            print(writer)
+            
             serializer = PostSerializer(post).data
+            tags = Tag.objects.filter(post=post.id).values()
+            html_text = markdown.markdown(post.content)
+            soup = BeautifulSoup(html_text, 'html.parser')
+            plain_text = soup.get_text()
+
+            print(plain_text)
             post_info = {
                 'id' : post.id,
-                'content' : post.content, 
+                'content' : plain_text, 
                 'title' : post.title,
                 'name' : post.name,
                 'writer': post.writer_id,
                 # 'image' : post.image,
-                "post" : serializer
+                "post" : serializer,
+                'tags' : tags,
+                'created_at': post.created_at
             }
             add_post = {
                 'post' : post_info,
-                'posts': serializer,
                 'writer': writer,
             }
             data.append(add_post)
@@ -76,15 +68,11 @@ class List(APIView):
 
 class DetailView(APIView):
     def get(self, request, pk):
-        # post = Post.objects.get(id=request.data['post_id'])
         post = Post.objects.get(id=pk)
-        print(post.writer.id)
-        # reviews = Review.objects.filter(post=post)
-        # tag = Tag.objects.filter(post=post)
-        # writer_info = ProfileSerializer(post.writer).data
         profile = Profile.objects.get(user=post.writer.id)
         writer_info = ProfileSerializer(profile).data
         # like = 
+        tags = Tag.objects.filter(post=post.id).values()
         
         reviews_infos = []
         
@@ -101,6 +89,7 @@ class DetailView(APIView):
             'post' : post_info,
             # 'review': reviews,
             'writer' : writer_info,
+            'tags' : tags
         }
         return Response(data, status = status.HTTP_200_OK)
 
@@ -109,41 +98,50 @@ class Write(APIView):
     permission_classes = [IsAuthenticated]
     
     def post(self, request):
-        # user = request.user
-        # post_data = {
-        #     'title' : request.data['title'],
-        #     'content' : request.data['content'],
-        #     # 'writer' : user,
-        #     'writer' : request.data['writer'],
-        # }
         user = request.user
         user = User.objects.get(username=user)
-        # print(user.id)
         request_data = request.data.copy()
-        # request_data['is_active'] = True
         request_data['writer'] = user.id
         serializer = PostSerializer(data=request_data)
+        tags = request.data.get('tags').split('#')
         if serializer.is_valid():
             post = serializer.save(is_active=True)
-            print(serializer.data)
+            for tag in tags:
+                tag_data = {
+                    'post' : post.id,
+                    'name' : tag
+                }
+                tag_serializer = TagSerializer(data=tag_data)
+                if tag_serializer.is_valid():
+                    tag_serializer.save()
             data = {
                 'message': '게시글 등록 완료',
-                'post': serializer.data  # Post 객체를 PostSerializer를 사용하여 직렬화
             }
             return Response(data, status=status.HTTP_201_CREATED)
         errors = serializer.errors
-        print(errors)
         return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class Update(APIView):
     permission_classes = [IsAuthenticated]
     
-    def post(self, request):
-        post = Post.objects.get(id=request.data['post_id'])
+    def put(self, request, pk):
+        post = Post.objects.get(id=pk)
+        # post = Post.objects.get(id=request.data['post_id'])
+        post.tags.all().delete()
         serializer = PostSerializer(post, data=request.data, partial=True)
+        tags = request.data.get('tags').split(' ')
+        print(tags)
         if serializer.is_valid():
             serializer.save()
+            for tag in tags:
+                tag_data = {
+                    'post' : post.id,
+                    'name' : tag
+                }
+                tag_serializer = TagSerializer(data=tag_data)
+                if tag_serializer.is_valid():
+                    tag_serializer.save()
             data = {
                 'message' : '수정하였습니다.',
                 'post' : serializer.data

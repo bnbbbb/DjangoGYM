@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'corsheaders',
     "blog",
     "user",
+    "markdown",
 ]
 
 

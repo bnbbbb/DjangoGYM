@@ -49,8 +49,5 @@ class Review(models.Model):
 
 class Tag(models.Model):
     post = models.ForeignKey('Post', related_name='tags',on_delete=models.CASCADE)
-    writer = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=10)
     
-    def __str__(self):
-        return self.name

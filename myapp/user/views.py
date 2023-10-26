@@ -43,14 +43,17 @@ class Login(APIView):
         # print(id)
         password = request.data['password']
         user = authenticate(username=id, password=password)
-        print(user)
+        # profile = ProfileSerializer(user=user)
+        profile = Pro.objects.get(user= user.id)
         if user is not None:
             token = create_jwt_pair_for_user(user)
             serializer = UserSerializer(user)
+            profileseri = ProfileSerializer(profile)
             data = {
                 'Message' : '로그인',
                 'token' : token,
                 'user' : serializer.data,
+                'profile': profileseri.data
             }
             return Response(data, status=status.HTTP_200_OK)
             
