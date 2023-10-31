@@ -4,9 +4,14 @@
 *.pyc
 __pycache__/
 local_settings.py
+.env
 # db.sqlite3
 db.sqlite3-journal
 # media
 venv/
 media/
 media/
+myapp/app/.env
+static
+staticfiles
+templates
