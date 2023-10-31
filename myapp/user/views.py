@@ -14,6 +14,7 @@ from rest_framework.views import APIView
 from .serializers import UserSerializer, ProfileSerializer
 from user.models import User, Profile as Pro
 from .tokens import create_jwt_pair_for_user
+from blog.upload import S3ImgUploader
 
 
 ### Register
@@ -40,10 +41,8 @@ class Registration(APIView):
 class Login(APIView):
     def post(self, request):
         id = request.data['username']
-        # print(id)
         password = request.data['password']
         user = authenticate(username=id, password=password)
-        # profile = ProfileSerializer(user=user)
         profile = Pro.objects.get(user= user.id)
         if user is not None:
             token = create_jwt_pair_for_user(user)
@@ -74,27 +73,10 @@ class Profile(APIView):
     permission_classes = [IsAuthenticated]
     
     def post(self, request):
-        # post = Profile.objects.get(id=request.data['post_id'])
-        # user = 
-        # user = Profile.objects.get()
         profile = Pro.objects.get(user = request.user.id)
         serializer = ProfileSerializer(profile)
-        # print(serializer)
-        # if serializer.is_valid():
-            # serializer.save()
-            
-            # try:
-            #     image = request.FILES('profileImage')
-            # except:
-            #     is_image = False
-            # else:
-            #     is_image = True
-            # if is_image:
-            #     user_profile.save()
-                
         return Response(serializer.data, status=status.HTTP_200_OK)
         
-        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProfileUpdate(APIView):
@@ -108,23 +90,21 @@ class ProfileUpdate(APIView):
 
         if serializer.is_valid():
             serializer.save()
-            
-            # try:
-            #     image = request.FILES['profileImage']
-            # except:
-            #     is_image = False
-            # else:
-            #     is_image = True
-                
-            # if is_image:
-            #     # img_uploader = S3ImgUploader(image)
-            #     # uploaded_url = img_uploader.upload()
-            #     # user_profile.profileImage = uploaded_url
-            #     user_profile.save()
-            # user_serializer = UserSerializer(request.user)
+            try:
+                image = request.FILES['image']
+            except:
+                exist_image = False
+            else:
+                exist_image = True
+            if exist_image:
+                upload_img = S3ImgUploader(image)
+                upload_url = upload_img.upload()
+                profile.image = upload_url
+                profile.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
-        print(serializer.errors)
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 # class ProfileView(View):
 #     def get(self, request):
         # user_profile = Profile.objects.get(user=request.user)

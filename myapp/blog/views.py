@@ -30,8 +30,6 @@ from bs4 import BeautifulSoup
 class List(APIView):
     
     def get(self, request):
-        # user = Profile.objects.get(user = request.user)
-        # print(request.user)
         posts = Post.objects.all()
         data = []
         for post in posts:
@@ -43,7 +41,6 @@ class List(APIView):
             soup = BeautifulSoup(html_text, 'html.parser')
             plain_text = soup.get_text()
 
-            print(plain_text)
             post_info = {
                 'id' : post.id,
                 'content' : plain_text, 
