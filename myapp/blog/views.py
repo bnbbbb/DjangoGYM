@@ -18,6 +18,7 @@ from .serializers import PostSerializer, TagSerializer
 from user.serializers import UserSerializer, ProfileSerializer
 from user.models import User, Profile
 import markdown
+from rest_framework.renderers import JSONRenderer
 from bs4 import BeautifulSoup
 
 
@@ -32,10 +33,12 @@ class List(APIView):
         # user = Profile.objects.get(user = request.user)
         # print(request.user)
         posts = Post.objects.all()
+        print(posts)
         data = []
+        # print(post)
         for post in posts:
-            writer = UserSerializer(post.writer).data
-            
+            profile = Profile.objects.get(user=post.writer)
+            profileserializer = ProfileSerializer(profile).data
             serializer = PostSerializer(post).data
             tags = Tag.objects.filter(post=post.id).values()
             html_text = markdown.markdown(post.content)
@@ -55,38 +58,67 @@ class List(APIView):
             }
             add_post = {
                 'post' : post_info,
-                'writer': writer,
+                'writer': profileserializer,
             }
             data.append(add_post)
         data = {
             'posts' : data
         }
+        # print(data)
         return Response(data, status=status.HTTP_200_OK)
 
 
-class SearchTag(View):
+class SearchTag(APIView):
     def get(self, request, searchTerm):
-        search_term = request.GET.get('searchTerm', None)
-        # a = Post.objects.filter(title = 'Title')
-        # print(a)
         print(searchTerm)
         if not searchTerm:
-            print('qweqweqwe')
-            queryset = Post.objects.all()
+            print(';12321')
+            post_results = Post.objects.all()
         else:
             print('asdasdasd')
-            # posts = Post.objects.filter(title=search_term)
-            results = Post.objects.filter(
-                Q(title=searchTerm) | 
-                Q(content=searchTerm) 
-                # Q(writer=searchTerm) 
-                # Q(writer__profile__address__icontains=search_term)
+            writer_results = Profile.objects.filter(
+                Q(address__contains = searchTerm)|
+                Q(name__contains = searchTerm)
             )
-            print(results)
+            post_results = Post.objects.filter(
+                Q(title__contains=searchTerm) | 
+                Q(content__contains=searchTerm) |
+                Q(writer__id__in = writer_results) 
+            )
+        print(post_results)
+        data = []
+        for post in post_results:
+            # print(post.data)
+            profile = Profile.objects.get(user=post.writer)
+            profileserializer = ProfileSerializer(profile).data
+            serializer = PostSerializer(post).data
+            # print(serializer)
+            tags = Tag.objects.filter(post=post.id).values()
+            html_text = markdown.markdown(post.content)
+            soup = BeautifulSoup(html_text, 'html.parser')
+            plain_text = soup.get_text()
+            post_info = {
+                'id' : post.id,
+                'content' : plain_text, 
+                'title' : post.title,
+                'name' : post.name,
+                'writer': post.writer_id,
+                # 'image' : post.image,
+                "post" : serializer,
+                'tags' : tags,
+                'created_at': post.created_at
+            }
+            add_post = {
+                'post' : post_info,
+                'writer': profileserializer,
+            }
+            data.append(add_post)
+            # print(data)
         data = {
-            'search_term'
+            'posts' : data
         }
-        return Response(data, status=status.HTTP_200_OK)
+        # print(data)
+        return Response(data, status=status.HTTP_200_OK, content_type="application/json")
 
 #     def get(self, request, tag):
 #         category = request.GET.get('category')

@@ -91,7 +91,7 @@ class ProfileUpdate(APIView):
         if serializer.is_valid():
             serializer.save()
             try:
-                image = request.FILES['image']
+                profileImage = request.FILES['image']
             except:
                 exist_image = False
             else:
@@ -100,7 +100,7 @@ class ProfileUpdate(APIView):
             if exist_image:
                 delete_img = S3ImgUploader(delete_img)
                 delete_img.delete()
-                upload_img = S3ImgUploader(image)
+                upload_img = S3ImgUploader(profileImage)
                 upload_url = upload_img.upload()
                 profile.image = upload_url
                 profile.save()
