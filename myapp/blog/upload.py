@@ -36,7 +36,7 @@ class S3ImgUploader:
         try:
             s3_client.delete_object(
                 Bucket=os.environ.get("AWS_STORAGE_BUCKET_NAME"),
-                Key=str(self.file)  
+                Key=str(self.file)
             )
             return True  
         except Exception as e:

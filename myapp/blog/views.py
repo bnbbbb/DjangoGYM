@@ -28,8 +28,9 @@ from bs4 import BeautifulSoup
 
 ### Post
 class List(APIView):
-    
     def get(self, request):
+        # user = Profile.objects.get(user = request.user)
+        # print(request.user)
         posts = Post.objects.all()
         data = []
         for post in posts:
@@ -61,6 +62,54 @@ class List(APIView):
             'posts' : data
         }
         return Response(data, status=status.HTTP_200_OK)
+
+
+class SearchTag(View):
+    def get(self, request, searchTerm):
+        search_term = request.GET.get('searchTerm', None)
+        # a = Post.objects.filter(title = 'Title')
+        # print(a)
+        print(searchTerm)
+        if not searchTerm:
+            print('qweqweqwe')
+            queryset = Post.objects.all()
+        else:
+            print('asdasdasd')
+            # posts = Post.objects.filter(title=search_term)
+            results = Post.objects.filter(
+                Q(title=searchTerm) | 
+                Q(content=searchTerm) 
+                # Q(writer=searchTerm) 
+                # Q(writer__profile__address__icontains=search_term)
+            )
+            print(results)
+        data = {
+            'search_term'
+        }
+        return Response(data, status=status.HTTP_200_OK)
+
+#     def get(self, request, tag):
+#         category = request.GET.get('category')
+#         q = request.GET.get('q')
+        
+#         if not q:  # 검색어가 없는 경우
+#             queryset = Post.objects.all()  # 모든 게시물
+#         else:
+#             # 선택한 카테고리에 따라 필터링
+#             if category == 'address':
+#                 queryset = Post.objects.filter(address__icontains=q)
+#             elif category == 'tag':
+#                 queryset = Post.objects.filter(tags__name__icontains=q)
+#             elif category == 'content':
+#                 queryset = Post.objects.filter(content__icontains=q)
+#             else:
+#                 queryset = Post.objects.none()  # 선택하지 않은 경우 빈 쿼리셋 반환
+#         context = {
+#             'posts': queryset,
+#             'q': q,
+#             'title': 'Blog',
+#         }
+#         return render(request, 'blog/post_list.html', context)
 
 
 class DetailView(APIView):

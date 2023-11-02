@@ -86,8 +86,8 @@ class ProfileUpdate(APIView):
         profile = Pro.objects.get(user = request.user)
         request_data = request.data.copy()
         request_data['user'] = request.user.id
+        delete_img = profile.image
         serializer = ProfileSerializer(profile, data=request_data)
-
         if serializer.is_valid():
             serializer.save()
             try:
@@ -96,7 +96,10 @@ class ProfileUpdate(APIView):
                 exist_image = False
             else:
                 exist_image = True
+                
             if exist_image:
+                delete_img = S3ImgUploader(delete_img)
+                delete_img.delete()
                 upload_img = S3ImgUploader(image)
                 upload_url = upload_img.upload()
                 profile.image = upload_url
