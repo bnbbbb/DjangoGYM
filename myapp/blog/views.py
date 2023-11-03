@@ -72,10 +72,8 @@ class SearchTag(APIView):
     def get(self, request, searchTerm):
         print(searchTerm)
         if not searchTerm:
-            print(';12321')
             post_results = Post.objects.all()
         else:
-            print('asdasdasd')
             writer_results = Profile.objects.filter(
                 Q(address__contains = searchTerm)|
                 Q(name__contains = searchTerm)
@@ -85,7 +83,6 @@ class SearchTag(APIView):
                 Q(content__contains=searchTerm) |
                 Q(writer__id__in = writer_results) 
             )
-        print(post_results)
         data = []
         for post in post_results:
             # print(post.data)

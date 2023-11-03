@@ -73,6 +73,7 @@ class Profile(APIView):
     permission_classes = [IsAuthenticated]
     
     def post(self, request):
+        print(request.user.password)
         profile = Pro.objects.get(user = request.user.id)
         serializer = ProfileSerializer(profile)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -107,7 +108,31 @@ class ProfileUpdate(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
+
+class ChangePassword(APIView):
+    def post(self, request):
+        user = request.user
+        print(user)
+        cur_password = request.data.get('cur_password')
+        new_password = request.data.get('new_password')
+        if not user.check_password(cur_password):
+            data = {
+                'message' : '현재 비밀번호가 다릅니다.'
+            }
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
+        if user.check_password(new_password):
+            data = {
+                'message' : '현재 비밀번호와 변경할 비밀번호가 일치합니다.'
+            }
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
+        
+        user.set_password(new_password)
+        user.save()
+        data = {
+            'message':'비밀번호가 성공적으로 변경되었습니다.'
+        }
+        return Response(data, status=status.HTTP_200_OK)
 # class ProfileView(View):
 #     def get(self, request):
         # user_profile = Profile.objects.get(user=request.user)
