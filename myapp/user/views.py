@@ -100,7 +100,7 @@ class ProfileUpdate(APIView):
                 delete_img = S3ImgUploader(delete_img)
                 delete_img.delete()
                 upload_img = S3ImgUploader(profileImage)
-                upload_url = upload_img.upload()
+                upload_url = upload_img.upload('user')
                 profile.image = upload_url
                 profile.save()
             return Response(serializer.data, status=status.HTTP_200_OK)

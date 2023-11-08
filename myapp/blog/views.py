@@ -5,19 +5,22 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Q
 from django.core.files.storage import default_storage
 from .models import Post, Review, Tag
+from .models import PostImage as Image
 from user.models import Profile, User
 
-
+from urllib.parse import urlparse
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
-from .serializers import PostSerializer, TagSerializer
+from .serializers import PostSerializer, TagSerializer, PostImageSerializer
 from user.serializers import UserSerializer, ProfileSerializer
 from user.models import User, Profile
 import markdown
+from .upload import S3ImgUploader
+from .imgconfirm import img_objects
 from rest_framework.renderers import JSONRenderer
 from bs4 import BeautifulSoup
 
@@ -32,6 +35,16 @@ class List(APIView):
     def get(self, request):
         posts = Post.objects.filter(is_active = True)
         data = []
+        post_images = [obj['Key'] for obj in img_objects.get('Contents', []) if obj['Key'].startswith('post/')]
+        # print(post_images)
+        post_img = [image.image for image in Image.objects.all()]
+        # print(post_img)
+        img_confirm = [image for image in post_images if image not in post_img]
+        print(img_confirm)
+        for del_img in img_confirm:
+            delete_img = S3ImgUploader(del_img)
+            delete_img.delete()
+            
         for post in posts:
             profile = Profile.objects.get(user=post.writer)
             profileserializer = ProfileSerializer(profile).data
@@ -40,7 +53,8 @@ class List(APIView):
             html_text = markdown.markdown(post.content)
             soup = BeautifulSoup(html_text, 'html.parser')
             plain_text = soup.get_text()
-
+            # a = s3_client.list_objects(Bucket)
+            
             post_info = {
                 'id' : post.id,
                 'content' : plain_text, 
@@ -170,14 +184,26 @@ class Write(APIView):
     permission_classes = [IsAuthenticated]
     
     def post(self, request):
+        # print(request.data)
+        # print(request.data['image'])
         user = request.user
         user = User.objects.get(username=user)
         request_data = request.data.copy()
         request_data['writer'] = user.id
         serializer = PostSerializer(data=request_data)
+        # imageserializer = PostImageSerializer()
         tags = request.data.get('tags').split('#')
+        images = request.data.getlist('image')
+            # image_url = image.split('com/')[1]
         if serializer.is_valid():
             post = serializer.save(is_active=True)
+            for image in images:
+                if isinstance(image, str):
+                    parsed_url = urlparse(image)
+                    img_url = parsed_url.path[1:]
+                    Image.objects.create(post=post, image = img_url)
+                else:
+                    continue
             for tag in tags:
                 tag_data = {
                     'post' : post.id,
@@ -192,6 +218,22 @@ class Write(APIView):
             return Response(data, status=status.HTTP_201_CREATED)
         errors = serializer.errors
         return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PostImage(APIView):
+    def post(self, request):
+        user = User.objects.get(username=request.user)
+        post_imgs = []
+        if request.FILES['image']:
+            post_img = request.FILES['image']
+            upload_lmg = S3ImgUploader(post_img)
+            upload_url = upload_lmg.upload('post')
+            post_imgs.append('https://myorgobucket.s3.ap-northeast-2.amazonaws.com/'+upload_url)
+        return Response(post_imgs, status=status.HTTP_200_OK)
+
+
+
+
 
 
 class Update(APIView):

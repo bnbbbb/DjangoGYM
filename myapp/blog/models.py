@@ -18,27 +18,11 @@ class Post(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add = True)
     updated_at = models.DateTimeField(auto_now = True)
-    # def save(self, *args, **kwargs):
-    #     # User 모델로부터 필요한 정보 가져오기
-    #     # writer = self.writer  # Post 모델의 writer 필드는 User 객체를 참조합니다
-    #     # if writer.name and writer.address:
-    #     #     name = writer.name
-    #     #     address = writer.address
-    #     # else:
-    #     #     name = '익명'
-    #     #     address = '미정'
-    #     try:
-    #         profile = Profile.objects.get(user=self.writer)
-    #         # name = profile.name
-    #         # address = profile.address
-    #     except Profile.DoesNotExist:
-    #         name = '익명'
-    #         address = '미정'
-    #     # 필요한 정보를 Post 모델에 할당
-    #     self.name = name
-    #     self.address = address
 
-    #     super().save(*args, **kwargs)
+class PostImage(models.Model):
+    post = models.ForeignKey('Post', on_delete=models.CASCADE)
+    image = models.ImageField(blank=True, null=True)
+
 
 class Review(models.Model):
     post = models.ForeignKey('Post', on_delete=models.CASCADE)

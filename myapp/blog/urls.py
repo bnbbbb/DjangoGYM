@@ -8,6 +8,7 @@ urlpatterns =[
     # path('detail/<int:pk>', views.DetailView.as_view(), name='detail'),
     path('detail/<int:pk>/', views.DetailView.as_view(), name='detail'),
     path('write/', views.Write.as_view(), name='write'),
+    path('write/image/', views.PostImage.as_view(), name='write'),
     # path('detail/<int:pk>/edit/', views.Update.as_view(), name='edit'),
     path('detail/<int:pk>/edit/', views.Update.as_view(), name='edit'),
     # path('detail/<int:pk>/delete/', views.Delete.as_view(), name='delete'),
