@@ -30,12 +30,8 @@ from bs4 import BeautifulSoup
 ### Post
 class List(APIView):
     def get(self, request):
-        # user = Profile.objects.get(user = request.user)
-        # print(request.user)
-        posts = Post.objects.all()
-        print(posts)
+        posts = Post.objects.filter(is_active = True)
         data = []
-        # print(post)
         for post in posts:
             profile = Profile.objects.get(user=post.writer)
             profileserializer = ProfileSerializer(profile).data
@@ -70,9 +66,8 @@ class List(APIView):
 
 class SearchTag(APIView):
     def get(self, request, searchTerm):
-        print(searchTerm)
         if not searchTerm:
-            post_results = Post.objects.all()
+            post_results = Post.objects.filter(is_active = True)
         else:
             writer_results = Profile.objects.filter(
                 Q(address__contains = searchTerm)|
@@ -86,6 +81,8 @@ class SearchTag(APIView):
         data = []
         for post in post_results:
             # print(post.data)
+            if post.is_active == False:
+                continue
             profile = Profile.objects.get(user=post.writer)
             profileserializer = ProfileSerializer(profile).data
             serializer = PostSerializer(post).data
@@ -229,9 +226,9 @@ class Update(APIView):
 class Delete(APIView):
     permission_classes = [IsAuthenticated]
     
-    def post(self, request):
-        post = Post.objects.get(id = request.data['post_id'])
-        
+    def post(self, request, pk):
+        post = Post.objects.get(id = pk)
+        print(post)
         post.is_active = False
         post.save()
         print(post)

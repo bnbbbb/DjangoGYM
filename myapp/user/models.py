@@ -49,7 +49,7 @@ class User(AbstractUser):
 class Profile(models.Model):
     user = models.OneToOneField('User', on_delete = models.CASCADE)
     name = models.CharField(default='닉네임', max_length=10, null=True, blank=True)
-    image = models.ImageField(blank=True, null=True)
+    image = models.ImageField(upload_to='',blank=True, null=True)
     about = models.TextField(blank=True, null=True)
     address_num = models.CharField(max_length=100, blank=True, null=True)
     address = models.CharField(max_length=100, blank=True, null=True)
