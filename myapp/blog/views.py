@@ -44,9 +44,15 @@ class List(APIView):
         for del_img in img_confirm:
             delete_img = S3ImgUploader(del_img)
             delete_img.delete()
+            img_confirm = []
             
         for post in posts:
             profile = Profile.objects.get(user=post.writer)
+            post_img = Image.objects.filter(post=post).first()
+            if post_img:
+                image_url = post_img.image
+            else:
+                image_url = None
             profileserializer = ProfileSerializer(profile).data
             serializer = PostSerializer(post).data
             tags = Tag.objects.filter(post=post.id).values()
@@ -61,10 +67,10 @@ class List(APIView):
                 'title' : post.title,
                 'name' : post.name,
                 'writer': post.writer_id,
-                # 'image' : post.image,
                 "post" : serializer,
                 'tags' : tags,
-                'created_at': post.created_at
+                'created_at': post.created_at, 
+                'first_img' : image_url
             }
             add_post = {
                 'post' : post_info,
@@ -94,13 +100,11 @@ class SearchTag(APIView):
             )
         data = []
         for post in post_results:
-            # print(post.data)
             if post.is_active == False:
                 continue
             profile = Profile.objects.get(user=post.writer)
             profileserializer = ProfileSerializer(profile).data
             serializer = PostSerializer(post).data
-            # print(serializer)
             tags = Tag.objects.filter(post=post.id).values()
             html_text = markdown.markdown(post.content)
             soup = BeautifulSoup(html_text, 'html.parser')
@@ -162,8 +166,6 @@ class DetailView(APIView):
         
         reviews_infos = []
         
-        # for review in reviews:
-            # reviews_info = {}
         post_info = {
                 'id' : post.id,
                 'content' : post.content, 
@@ -173,51 +175,10 @@ class DetailView(APIView):
         post_data = PostSerializer(post).data
         data = {
             'post' : post_info,
-            # 'review': reviews,
             'writer' : writer_info,
             'tags' : tags
         }
         return Response(data, status = status.HTTP_200_OK)
-
-
-class Write(APIView):
-    permission_classes = [IsAuthenticated]
-    
-    def post(self, request):
-        # print(request.data)
-        # print(request.data['image'])
-        user = request.user
-        user = User.objects.get(username=user)
-        request_data = request.data.copy()
-        request_data['writer'] = user.id
-        serializer = PostSerializer(data=request_data)
-        # imageserializer = PostImageSerializer()
-        tags = request.data.get('tags').split('#')
-        images = request.data.getlist('image')
-            # image_url = image.split('com/')[1]
-        if serializer.is_valid():
-            post = serializer.save(is_active=True)
-            for image in images:
-                if isinstance(image, str):
-                    parsed_url = urlparse(image)
-                    img_url = parsed_url.path[1:]
-                    Image.objects.create(post=post, image = img_url)
-                else:
-                    continue
-            for tag in tags:
-                tag_data = {
-                    'post' : post.id,
-                    'name' : tag
-                }
-                tag_serializer = TagSerializer(data=tag_data)
-                if tag_serializer.is_valid():
-                    tag_serializer.save()
-            data = {
-                'message': '게시글 등록 완료',
-            }
-            return Response(data, status=status.HTTP_201_CREATED)
-        errors = serializer.errors
-        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PostImage(APIView):
@@ -232,8 +193,44 @@ class PostImage(APIView):
         return Response(post_imgs, status=status.HTTP_200_OK)
 
 
-
-
+class Write(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        user = request.user
+        user = User.objects.get(username=user)
+        request_data = request.data.copy()
+        request_data['writer'] = user.id
+        serializer = PostSerializer(data=request_data)
+        tags = request.data.get('tags').split('#')
+        images = request.data.getlist('image')[0].split(',')
+        if serializer.is_valid():
+            post = serializer.save(is_active=True)
+            if images != ['']:
+                for image in images:
+                    img_data = {
+                        'post' : post.id,
+                        'image' : image.split('.com/')[1]
+                    }
+                    img_serializer = PostImageSerializer(data=img_data)
+                    if img_serializer.is_valid():
+                        img_serializer.save()
+                    
+            for tag in tags:
+                tag_data = {
+                    'post' : post.id,
+                    'name' : tag
+                }
+                tag_serializer = TagSerializer(data=tag_data)
+                if tag_serializer.is_valid():
+                    tag_serializer.save()
+            data = {
+                'message': '게시글 등록 완료',
+            }
+            print(data)
+            return Response(data, status=status.HTTP_201_CREATED)
+        errors = serializer.errors
+        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class Update(APIView):
@@ -241,13 +238,28 @@ class Update(APIView):
     
     def put(self, request, pk):
         post = Post.objects.get(id=pk)
-        # post = Post.objects.get(id=request.data['post_id'])
+        post_img = Image.objects.filter(post=pk)
+        # toast_ui에 이미지가 지워지면 update할 때 postimg 모델에서 지움
+        images_content = ''.join(request.data.get('content').split(','))
+        for img in post_img:
+            if str(img.image) not in images_content:
+                img.delete()
         post.tags.all().delete()
         serializer = PostSerializer(post, data=request.data, partial=True)
         tags = request.data.get('tags').split(' ')
-        print(tags)
+        images = request.data.getlist('image')[0].split(',')
         if serializer.is_valid():
-            serializer.save()
+            post = serializer.save()
+            if images != ['']:
+                for image in images:
+                    img_data = {
+                        'post' : post.id,
+                        'image' : image.split('.com/')[1]
+                    }
+                    img_serializer = PostImageSerializer(data=img_data)
+                    if img_serializer.is_valid():
+                        img_serializer.save()
+                    
             for tag in tags:
                 tag_data = {
                     'post' : post.id,
@@ -271,8 +283,9 @@ class Delete(APIView):
     def post(self, request, pk):
         post = Post.objects.get(id = pk)
         print(post)
-        post.is_active = False
-        post.save()
+        # post.is_active = False
+        # post.save()
+        post.delete()
         print(post)
         data = {
             "message" : "글 삭제 완료",

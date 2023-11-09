@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 AUTH_USER_MODEL = 'user.User'
 
 LOGIN_URL  = '/user/login'
-
+SESSION_COOKIE_AGE = 60 * 60
 # MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'

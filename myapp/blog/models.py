@@ -21,7 +21,7 @@ class Post(models.Model):
 
 class PostImage(models.Model):
     post = models.ForeignKey('Post', on_delete=models.CASCADE)
-    image = models.ImageField(blank=True, null=True)
+    image = models.TextField(blank=True, null=True)
 
 
 class Review(models.Model):
