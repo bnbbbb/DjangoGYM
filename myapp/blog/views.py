@@ -23,17 +23,20 @@ from .upload import S3ImgUploader
 from .imgconfirm import img_objects
 from rest_framework.renderers import JSONRenderer
 from bs4 import BeautifulSoup
+from rest_framework.pagination import PageNumberPagination
 
-
-# from user.models import BusinessUser
-# from .forms import PostForm, ReviewForm, TagForm, SearchForm
 # Create your views here.
 
 
 ### Post
 class List(APIView):
+    pagination_class = PageNumberPagination
     def get(self, request):
         posts = Post.objects.filter(is_active = True)
+        paginated_queryset = self.pagination_class().paginate_queryset(posts, request, view=self)
+        for post in paginated_queryset:
+            print(post)
+        print(paginated_queryset)
         data = []
         post_images = [obj['Key'] for obj in img_objects.get('Contents', []) if obj['Key'].startswith('post/')]
         # print(post_images)
@@ -46,7 +49,7 @@ class List(APIView):
             delete_img.delete()
             img_confirm = []
             
-        for post in posts:
+        for post in paginated_queryset:
             profile = Profile.objects.get(user=post.writer)
             post_img = Image.objects.filter(post=post).first()
             if post_img:
@@ -78,13 +81,16 @@ class List(APIView):
             }
             data.append(add_post)
         data = {
-            'posts' : data
+            'posts' : data,
+            'post_len' : len(posts)
         }
         # print(data)
         return Response(data, status=status.HTTP_200_OK)
 
 
 class SearchTag(APIView):
+    pagination_class = PageNumberPagination
+    
     def get(self, request, searchTerm):
         if not searchTerm:
             post_results = Post.objects.filter(is_active = True)
@@ -99,7 +105,9 @@ class SearchTag(APIView):
                 Q(writer__id__in = writer_results) 
             )
         data = []
-        for post in post_results:
+        paginated_queryset = self.pagination_class().paginate_queryset(post_results, request, view=self)
+        
+        for post in paginated_queryset:
             if post.is_active == False:
                 continue
             profile = Profile.objects.get(user=post.writer)
@@ -125,11 +133,10 @@ class SearchTag(APIView):
                 'writer': profileserializer,
             }
             data.append(add_post)
-            # print(data)
         data = {
-            'posts' : data
+            'posts' : data,
+            'post_len' : len(post_results)
         }
-        # print(data)
         return Response(data, status=status.HTTP_200_OK, content_type="application/json")
 
 #     def get(self, request, tag):
