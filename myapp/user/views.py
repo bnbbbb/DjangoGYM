@@ -110,7 +110,6 @@ class ProfileUpdate(APIView):
 class ChangePassword(APIView):
     def post(self, request):
         user = request.user
-        print(user)
         cur_password = request.data.get('cur_password')
         new_password = request.data.get('new_password')
         if not user.check_password(cur_password):
