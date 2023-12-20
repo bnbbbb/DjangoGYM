@@ -67,8 +67,10 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5500",
-    ".gymsearch.shop",
-    ".ap-northeast-2.compute.amazonaws.com"
+    # ".gymsearch.shop",
+    # ".ap-northeast-2.compute.amazonaws.com"
+    "https://gymsearch.shop",
+    "https://ap-northeast-2.compute.amazonaws.com",
     # 원하는 도메인 주소
 ]
 

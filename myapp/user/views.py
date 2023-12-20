@@ -87,8 +87,10 @@ class ProfileUpdate(APIView):
         request_data = request.data.copy()
         request_data['user'] = request.user.id
         delete_img = profile.image
+        print(request_data)
         serializer = ProfileSerializer(profile, data=request_data)
         if serializer.is_valid():
+            serializer.save()
             try:
                 profileImage = request.FILES['image']
             except:
