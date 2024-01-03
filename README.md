@@ -72,29 +72,25 @@ DRF
 
 ## 6. 페이지 UI
 - user-회원가입 화면입니다.
-<img src="./readme/user_register.png">
----
+<img src="./readme/join.png">
+
 - 회원가입 후 로그인 화면입니다. 
-<img src="./readme/user_login.png" >
+<img src="./readme/login.png" >
 
 - user 프로필 변경 화면입니다. 
-<img src="./readme/useredit.png" >
+<img src="./readme/profile2.png" >
 
 - user 패스워드 변경 화면입니다.
-<img src="./readme/user_password.png" >
+<img src="./readme/password.png" >
 
 - user 프로필 보는 화면입니다. 
-- 닫기 버튼, 프로필 수정 버튼이 아직은 없습니다. 
-<img src="./readme/userprofile.png" >
+<img src="./readme/profile.png" >
 
 - blog화면입니다. 
-<img src="./readme/blog.png">
-
-- bloglist를 보는 화면입니다. 
-<img src="./readme/bloglist.png">
+<img src="./readme/board.png">
 
 - blogpost 작성하는 화면입니다. 
-<img src="./readme/post.png">
+<img src="./readme/write.png">
 
 - summernote를 활용하여 만들었지만 추후에 toastUI로 변경할 예정입니다. 
 
@@ -104,13 +100,11 @@ DRF
 <img src="./readme/join.gif">
 <img src="./readme/login.gif">
 <img src="./readme/profile.gif">
-<img src="./readme/editprofile.gif">
 
 - blog-post
 
-<img src="./readme/post.gif">
-<img src="./readme/postdetail.gif.gif">
-<img src="./readme/reviewtag.gif">
+<img src="./readme/write.gif">
+<img src="./readme/delete.gif">
 
 ## 8. 느낀점
 
@@ -127,6 +121,12 @@ Toast-UI 다중이미지 업로드
 Toast-UI에서 이미지 올리고 글작성 안했을 때 AWS S3에서 이미지 삭제하는법
 ```
 List(APIView)에서 AWS S3와 PostImage를 비교하여 PostImage에는 없는데 AWS S3에 있으면 삭제시킴
+```
+배포 과정
+```
+실제 배포하는 과정은 처음인데 생각보다 쉽지 않았습니다.
+배포하면서 웹사이트에 대한 이해도가 높아졌다고 생각합니다.
+CI/CD는 아직 구현하지 못하였지만 고도화 하는 과정에서 할 예정입니다.
 ```
 
 ### DB 설계의 중요성

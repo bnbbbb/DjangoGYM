@@ -178,18 +178,18 @@ class Write(APIView):
         request_data['writer'] = user.id
         serializer = PostSerializer(data=request_data)
         tags = request.data.get('tags').split('#')
-        images = request.data.getlist('image')[0].split(',')
+        # images = request.data.getlist('image')[0].split(',')
         if serializer.is_valid():
             post = serializer.save(is_active=True)
-            if images != ['']:
-                for image in images:
-                    img_data = {
-                        'post' : post.id,
-                        'image' : image.split('.com/')[1]
-                    }
-                    img_serializer = PostImageSerializer(data=img_data)
-                    if img_serializer.is_valid():
-                        img_serializer.save()
+            # if images != ['']:
+            #     for image in images:
+            #         img_data = {
+            #             'post' : post.id,
+            #             'image' : image.split('.com/')[1]
+            #         }
+            #         img_serializer = PostImageSerializer(data=img_data)
+            #         if img_serializer.is_valid():
+            #             img_serializer.save()
                     
             for tag in tags:
                 tag_data = {
